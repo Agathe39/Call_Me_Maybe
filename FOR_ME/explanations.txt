@@ -1,0 +1,30 @@
+
+Méthode encode:
+    Permet de tokeniser une suite de mots. Il ne va pas forcément
+    diviser la phrase en mot mais parfois aussi diviser des mots
+    pour isoler les suffixes ou préfixes par exemple.
+    Ensuite elle va définir pour chaque token un int pour que
+    l'ordinateur puisse l'identifier plus facilement.
+
+Méthode décode:
+
+    Permet de faire l'action inverse du encode. Elle par des chiffres
+    attribués à chaque token pour reconstituer la string.
+
+Méthode get_logits_from_input_ids:
+
+
+Méthode get_path_to_vocab_file:
+    Elle retourne le chemin qui mène à un décodeur de token. Comme 
+    une table asccii elle relie une clé à une valeur pour décoder 
+    un token.
+
+Méthde get_path_to_merges_file:
+
+
+Méthode get_path_to_tokenizer_file:
+
+
+Questions:
+
+    - Qu'est ce qu'un tensor ids ?

@@ -1,0 +1,2 @@
+Au lieu de le questionner sur toutes les fonctions
+les envoyer une par une et regarder le meilleur score
