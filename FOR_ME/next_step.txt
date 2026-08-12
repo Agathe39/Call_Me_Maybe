@@ -1,2 +1,53 @@
 Au lieu de le questionner sur toutes les fonctions
 les envoyer une par une et regarder le meilleur score
+
+
+
+Pour chaque prompt:
+
+    Tant qu'un nom de fonction n'apparait pas dans le prompt:
+
+        j'encode le prompt
+        j'obtiens la liste ids du prompt
+        je retire de la liste ids tous ce qui n'appartiens pas aux tokens de mes noms de fonctions
+
+        je créée une double list (list token, score)
+        Pour chaque token d'index i de chaque function:
+            j'ajoute le token et son score dans la liste
+        
+        je regarde le max score et à quel nom de fonction il fait référence
+        j'ajoute le token ayant le plus au score au prompt
+        
+        je decode le prompt
+
+{
+    "prompt": "What is the sum of 265 and 345?"
+  },
+  {
+    "prompt": "Greet shrek"
+  },
+  {
+    "prompt": "Greet john"
+  },
+  {
+    "prompt": "Reverse the string 'hello'"
+  },
+  {
+    "prompt": "Reverse the string 'world'"
+  },
+  {
+    "prompt": "What is the square root of 16?"
+  },
+  {
+    "prompt": "Calculate the square root of 144"
+  },
+  {
+    "prompt": "Replace all numbers in \"Hello 34 I'm 233 years old\" with NUMBERS"
+  },
+  {
+    "prompt": "Replace all vowels in 'Programming is fun' with asterisks"
+  },
+  {
+    "prompt": "Substitute the word 'cat' with 'dog' in 'The cat sat on the mat with another cat'"
+  }
+]
