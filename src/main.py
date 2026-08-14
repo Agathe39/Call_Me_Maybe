@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/06 16:13:44 by agathe          #+#    #+#               #
-#  Updated: 2026/08/13 12:37:50 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/14 11:43:00 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -296,6 +296,7 @@ def main() -> None:
 
     functions_names: list[str] = []
     functions_id: list[list[int]] = []
+    function_descriptions: list[str] = []
     all_functions_id: list[int] = []
 
     # je récupère les noms de fonctions et je les encode
@@ -304,6 +305,7 @@ def main() -> None:
             docs = json.load(f)
             for doc in docs:
                 functions_names.append(doc.get("name"))
+                function_descriptions.append(doc.get("description"))
 
         for name in functions_names:
             functions_id.append(test.encode(name).tolist()[0])
@@ -340,7 +342,14 @@ def main() -> None:
         print("ERROR: file not found")
         return
 
-    # print()
+
+    first_prompt: str = ""
+    end_prompt: str = "Given the prompt above, the matching function is: "
+
+
+    for i, name in enumerate(functions_names):
+        first_prompt += f"Function {i}: {name} -> {function_descriptions[i]} \n"
+    print(first_prompt, "\n")
 
     # print(all_functions_id)
     max_len = max([len(ids) for ids in functions_id])
@@ -348,115 +357,119 @@ def main() -> None:
 
     # print()
 
+    final_prompt: str = ""
     for prompt in prompts:
 
-        print(prompt)
-        # max_tokens: list[int] = []
+        final_prompt = first_prompt + prompt + "\n" + end_prompt
+        # print(final_prompt)
+        # # print(prompt)
+        # print()
+        max_tokens: list[int] = []
         need_break: bool = False
 
-        while not any(name in prompt for name in functions_names):
+        # while not any(name in end_prompt for name in functions_names):
 
             # print(prompt)
 
-            max_tokens: list[int] = []
-            encode_prompt = test.encode(prompt).tolist()[0]
-            ids_prompt = test.get_logits_from_input_ids(encode_prompt)
+        max_tokens: list[int] = []
+        encode_prompt = test.encode(final_prompt).tolist()[0]
+        ids_prompt = test.get_logits_from_input_ids(encode_prompt)
 
-            ids_token: list[float] = []
+        ids_token: list[float] = []
+
+        functions_id_valid: list[int] = []
+        for nbr in range(max_len):
+        # for nbr in range(2):
 
             functions_id_valid: list[int] = []
-            for nbr in range(max_len):
-            # for nbr in range(2):
 
-                functions_id_valid: list[int] = []
+            # print()
+            # print(prompt)
+            # print("nbr:", nbr)
 
-                # print()
-                # print(prompt)
-                # print("nbr:", nbr)
+            ids_prompt = test.get_logits_from_input_ids(encode_prompt)
 
-                ids_prompt = test.get_logits_from_input_ids(encode_prompt)
+            # print("max_token: ", max_tokens)
+            # print("valide before: ", functions_id_valid)
+            # print()
 
-                # print("max_token: ", max_tokens)
-                # print("valide before: ", functions_id_valid)
-                # print()
+            for tokens in functions_id:
+                # print("tokens:", tokens)
+                if max_tokens == []:
+                    functions_id_valid.append(tokens)
 
-                for tokens in functions_id:
-                    # print("tokens:", tokens)
-                    if max_tokens == []:
+                else:
+                    verif: bool = False
+                    for tok in max_tokens:
+                        if tok in tokens:
+                            verif = True
+                        else:
+                            verif = False
+                            break
+                    if verif == True:
                         functions_id_valid.append(tokens)
 
-                    else:
-                        verif: bool = False
-                        for tok in max_tokens:
-                            if tok in tokens:
-                                verif = True
-                            else:
-                                verif = False
-                                break
-                        if verif == True:
-                            functions_id_valid.append(tokens)
+            # print("valide after: ", functions_id_valid)
 
-                # print("valide after: ", functions_id_valid)
+            if len(functions_id_valid) == 1:
+                for nb, id in enumerate(functions_id):
+                    if id == functions_id_valid[0]:
+                        last_token = id.index(encode_prompt[-1]) + 1
+                        # print(last_token)
+                        # print("test prompt 1: ", encode_prompt, "id function: ", id)
+                        # print("last token: ", last_token)
+                        # print(id[last_token])
+                        try:
+                            for token in id[last_token:]:
+                                # print("test encode: ", encode_prompt)
+                                # print(token)
+                                encode_prompt.append(token)
+                        except IndexError:
+                            pass
+                        # prompt += functions_names[nb]
+                        # print("test prompt 2:", prompt)
+                        need_break = True
+                        break
 
-                if len(functions_id_valid) == 1:
-                    for nb, id in enumerate(functions_id):
-                        if id == functions_id_valid[0]:
-                            last_token = id.index(encode_prompt[-1]) + 1
-                            # print(last_token)
-                            # print("test prompt 1: ", encode_prompt, "id function: ", id)
-                            # print("last token: ", last_token)
-                            # print(id[last_token])
-                            try:
-                                for token in id[last_token:]:
-                                    # print("test encode: ", encode_prompt)
-                                    # print(token)
-                                    encode_prompt.append(token)
-                            except IndexError:
-                                pass
-                            # prompt += functions_names[nb]
-                            # print("test prompt 2:", prompt)
-                            need_break = True
-                            break
+            if need_break == True:
+                final_prompt = test.decode(encode_prompt)
+                break
 
-                if need_break == True:
-                    prompt = test.decode(encode_prompt)
-                    break
+            ids_token = []
+            for tokens in functions_id_valid:
 
-                ids_token = []
-                for tokens in functions_id_valid:
-
-                    try:
-                        ids_token.append([ids_prompt[tokens[nbr]], tokens[nbr]])
-                    except IndexError:
-                        continue
-
-                    # print()
-
-                # print("name fonction token")   
-                # for p in functions_id:
-                #     print(p)
-            
-                # print()
-                # print("ids_token:")
-                # for id_tok in ids_token:
-                #     print(id_tok)
+                try:
+                    ids_token.append([ids_prompt[tokens[nbr]], tokens[nbr]])
+                except IndexError:
+                    continue
 
                 # print()
 
-                max_score = max([score[0] for score in ids_token])
-                max_token = next(tok[1] for tok in ids_token if tok[0] == max_score)
-                max_tokens.append(max_token)
+            # print("name fonction token")   
+            # for p in functions_id:
+            #     print(p)
+        
+            # print()
+            # print("ids_token:")
+            # for id_tok in ids_token:
+            #     print(id_tok)
 
-                # print("token:", max_token, "max_score:", max_score)
+            # print()
 
-                # print(encode_prompt)
-                encode_prompt.append(max_token)
-                # print(encode_prompt)
+            max_score = max([score[0] for score in ids_token])
+            max_token = next(tok[1] for tok in ids_token if tok[0] == max_score)
+            max_tokens.append(max_token)
 
-            prompt = test.decode(encode_prompt)
-            print("test:", prompt)
+            # print("token:", max_token, "max_score:", max_score)
 
-            print()
+            # print(encode_prompt)
+            encode_prompt.append(max_token)
+            # print(encode_prompt)
+
+        final_prompt = test.decode(encode_prompt)
+        print("test:", final_prompt)
+
+        print()
             
 
 if __name__ == "__main__":
