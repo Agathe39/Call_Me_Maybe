@@ -24,11 +24,11 @@ debug:
 
 lint:
 	uv run $(PYTHON) -m flake8 src/ $(MAIN)
-	uv run $(PYTHON) -m mypy $(MYPY_FLAGS) src/ $(MAIN)
+	uv run $(PYTHON) -m mypy $(MYPY_FLAGS) $(MAIN)
 
 lint-strict:
 	uv run $(PYTHON) -m flake8 src/ $(MAIN)
-	uv run $(PYTHON) -m mypy $(MYPY_FLAGS) --strict src/ $(MAIN)
+	uv run $(PYTHON) -m mypy $(MYPY_FLAGS) --strict $(MAIN)
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} \;
