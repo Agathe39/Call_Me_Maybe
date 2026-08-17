@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/17 16:12:38 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/17 16:59:22 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -17,15 +17,17 @@ import json
 class Parameters:
 
     def __init__(self):
-        self.test = Small_LLM_Model
+        self.test = Small_LLM_Model()
         self.all_info: dict[str, list[str | dict[str, str]]] = {}
         self.prompts: list[list[str]] = []
+        self.basics_prompts: list[list[str]] = []
         self.prompt_funct_param: dict[str, list[str]] = {}
 
     def parameters_calling(self, prompts_functions: dict[str, str]) -> dict[str, list[str]]:
 
         self.search_info_function(prompts_functions)
         self.construct_prompts()
+        self.calling_llm()
         
 
     def search_info_function(self, prompts_functions: dict[str, str]) -> None:
@@ -75,8 +77,46 @@ class Parameters:
                     p = value.get("type")
                     all_param.append(p)
 
-            self.prompts.append(f"Function: {infos[0]} -> {infos[1][0]}\nParameters needed: {all_param}\nPrompt: {prompt}\nExtract the parameter values")
+            self.prompts.append(f"Function: {infos[0]} -> {infos[1][0]}\nParameters needed: {all_param}\nPrompt: {prompt}\nExtract the parameter values ")
+            self.basics_prompts.append(prompt)
             
         for prom in self.prompts:
             print(prom)
             print()
+
+    def calling_llm(self) -> None:
+
+        # search_param: list[str] = []
+        for i, final_prompt in enumerate(self.prompts):
+
+            # search_param = []
+            # nbr_param = self.count_param(final_prompt)
+
+            # while len(search_param) < nbr_param:
+
+            print(final_prompt)
+
+            tensor_p_final = self.test.encode(final_prompt)
+            token_p_final = tensor_p_final[0].tolist()
+
+            tensor_p = self.test.encode(self.basics_prompts[i])
+            token_p = tensor_p[0].tolist()
+            print(token_p_final)
+            print(token_p)
+            print()
+
+            all_final_tokens = self.test.get_logits_from_input_ids(token_p_final)
+
+            final_token: list[float] = []
+            for token in token_p:
+                final_token.append(all_final_tokens[token])
+                
+
+    def count_param(self, prompt: str) -> int:
+
+        cut1: list[str] = prompt.split("[")
+        cut2 = cut1[1].split("]")
+        params = cut2[0].split(", ")
+        lenght = len(params)
+
+        return lenght
