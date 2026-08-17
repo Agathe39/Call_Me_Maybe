@@ -26,3 +26,19 @@ Pour chaque prompt:
     - le prompt de question
     - la demande : "Given the prompt above, the matching function is: fn_".
 Pour orienter le modèle.
+
+
+Récupérer les parametres:
+    je dois récupérer le type des paramètres pour la fonction concernée
+    je créér un prompt qui dit je dois récupérer les paramètres de tel type dans ce prompt pour exécuter une fonction qui fait tel chose
+
+    -> nbr de paramètres à rechercher
+
+    fonction: ..., trouve les ... parametres: ... ... ... nécéssaire dans le prompt: ...
+
+    Function: fn_add_numbers -> Add two numbers together and return their sum.
+    Parameters needed:
+    - a (number)
+    - b (number)
+    Prompt: What is the sum of 2 and 3?
+    Extract the parameter values as JSON: {"a":
