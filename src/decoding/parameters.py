@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/17 16:59:22 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/18 17:06:22 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -86,30 +86,70 @@ class Parameters:
 
     def calling_llm(self) -> None:
 
+        for prompt in self.basics_prompts:
+
+            print(prompt)
+            token_prompt = self.test.encode(prompt)[0].tolist()
+            score_next_token = self.test.get_logits_from_input_ids(token_prompt)
+
+            score: list[float] = []
+            for token in token_prompt:
+                try:
+                    score.append(score_next_token[token])
+                except ValueError:
+                    pass
+
+            max_score = max(score)
+            max_token = next(token_prompt[i] for i, s in enumerate(score) if s == max_score)
+            print(self.test.decode(max_token))
+                
+
+
+
+
+
+
+
+
+
+
+
+
         # search_param: list[str] = []
-        for i, final_prompt in enumerate(self.prompts):
+        # for i, final_prompt in enumerate(self.prompts):
 
             # search_param = []
             # nbr_param = self.count_param(final_prompt)
 
             # while len(search_param) < nbr_param:
 
-            print(final_prompt)
+            # print(final_prompt)
 
-            tensor_p_final = self.test.encode(final_prompt)
-            token_p_final = tensor_p_final[0].tolist()
+            # tensor_p_final = self.test.encode(final_prompt)
+            # token_p_final = tensor_p_final[0].tolist()
 
-            tensor_p = self.test.encode(self.basics_prompts[i])
-            token_p = tensor_p[0].tolist()
-            print(token_p_final)
-            print(token_p)
-            print()
+            # tensor_p = self.test.encode(self.basics_prompts[i])
+            # token_p = tensor_p[0].tolist()
+            # print(token_p_final)
+            # print(token_p)
+            # print()
 
-            all_final_tokens = self.test.get_logits_from_input_ids(token_p_final)
+            # all_final_tokens = self.test.get_logits_from_input_ids(token_p_final)
 
-            final_token: list[float] = []
-            for token in token_p:
-                final_token.append(all_final_tokens[token])
+            # final_token: list[float] = []
+            # for token in token_p:
+            #     final_token.append(all_final_tokens[token])
+
+            # print(token_p)
+            # print(final_token)
+            # max_score = max(final_token)
+            # print(max_score)
+            # best_token = final_token.index(max_score)
+            # print(self.test.decode(best_token))
+            # try:
+            #     print(self.test.decode(token_p[12]))
+            # except IndexError:
+            #     pass
                 
 
     def count_param(self, prompt: str) -> int:
