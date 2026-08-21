@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/18 17:06:22 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/21 17:27:15 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -54,16 +54,7 @@ class Parameters:
                     self.all_info[prompt] = [funct, parameter]
                     self.prompt_funct_param[prompt] = [funct]
 
-        # print()
-        # print()
-        # for p, info in self.all_info.items():
-        #     print(p, ":", info)
-        #     print()
-
     def construct_prompts(self) -> None:
-
-        print()
-        print()
 
         for prompt, infos in self.all_info.items():
 
@@ -77,80 +68,68 @@ class Parameters:
                     p = value.get("type")
                     all_param.append(p)
 
-            self.prompts.append(f"Function: {infos[0]} -> {infos[1][0]}\nParameters needed: {all_param}\nPrompt: {prompt}\nExtract the parameter values ")
+            self.prompts.append(f"Function: {infos[0]} -> {infos[1][0]}\nParameters needed: {all_param}\nPrompt: {prompt}\nExtract the parameter values ->")
             self.basics_prompts.append(prompt)
-            
-        for prom in self.prompts:
-            print(prom)
-            print()
 
     def calling_llm(self) -> None:
 
-        for prompt in self.basics_prompts:
+        voc = self.test.get_path_to_vocab_file()
+        with open(voc, "r") as v:
+            vocabulaire = json.load(v)
 
-            print(prompt)
-            token_prompt = self.test.encode(prompt)[0].tolist()
-            score_next_token = self.test.get_logits_from_input_ids(token_prompt)
+        for prompt in self.prompts:
 
-            score: list[float] = []
-            for token in token_prompt:
-                try:
-                    score.append(score_next_token[token])
-                except ValueError:
-                    pass
+            param_wanted = self.get_param_type(prompt)
 
-            max_score = max(score)
-            max_token = next(token_prompt[i] for i, s in enumerate(score) if s == max_score)
-            print(self.test.decode(max_token))
-                
+            for nbr, param in enumerate(param_wanted):
 
+                very_best_token: dict[int, float] = {}
+                token_valid: list[int] = self.search_token_valid(param, vocabulaire)
+                prompt += f" parameters {nbr+1}: "
 
+                while ((very_best_token == {}) or (next(key for key in very_best_token) in token_valid)) and (param == "number"):
 
+                    very_best_token = {}
+                    score_valid: dict[int, float] = {}
 
+                    tensor_prompt = self.test.encode(prompt)
+                    encode_prompt = tensor_prompt[0].tolist()
+                    score_prompt = self.test.get_logits_from_input_ids(encode_prompt)
 
+                    for i, score in enumerate(score_prompt):
+                        if i in token_valid:
+                            score_valid[i] = score
 
+                    if score_valid:
 
+                        max_score_total = max([value for value in score_prompt])
+                        for i, score in enumerate(score_prompt):
+                            if score == max_score_total:
+                                very_best_token[i] = score
 
+                        max_score_valid = max([value for value in score_valid.values()])
 
+                        if max_score_total in [value for value in score_valid.values()]:
+                            for key, value in score_valid.items():
+                                if value == max_score_valid:
+                                    response = self.test.decode(key)
+                                    prompt += f"{response}"
 
+                if nbr + 1 != len(param_wanted):
+                    prompt += ","
 
+            if nbr + 1 == len(param_wanted) and param == "number":
+                print(prompt)
+                print()
 
-        # search_param: list[str] = []
-        # for i, final_prompt in enumerate(self.prompts):
+    def get_param_type(self, prompt: str) -> list[str]:
 
-            # search_param = []
-            # nbr_param = self.count_param(final_prompt)
+        cut1 = prompt.split("Parameters needed: ")[1]
+        cut2 = cut1.split("\n")[0]
+        cut3 = cut2.strip("[]")
+        param_list = cut3.replace("'", "").split(", ")
 
-            # while len(search_param) < nbr_param:
-
-            # print(final_prompt)
-
-            # tensor_p_final = self.test.encode(final_prompt)
-            # token_p_final = tensor_p_final[0].tolist()
-
-            # tensor_p = self.test.encode(self.basics_prompts[i])
-            # token_p = tensor_p[0].tolist()
-            # print(token_p_final)
-            # print(token_p)
-            # print()
-
-            # all_final_tokens = self.test.get_logits_from_input_ids(token_p_final)
-
-            # final_token: list[float] = []
-            # for token in token_p:
-            #     final_token.append(all_final_tokens[token])
-
-            # print(token_p)
-            # print(final_token)
-            # max_score = max(final_token)
-            # print(max_score)
-            # best_token = final_token.index(max_score)
-            # print(self.test.decode(best_token))
-            # try:
-            #     print(self.test.decode(token_p[12]))
-            # except IndexError:
-            #     pass
-                
+        return param_list    
 
     def count_param(self, prompt: str) -> int:
 
@@ -160,3 +139,34 @@ class Parameters:
         lenght = len(params)
 
         return lenght
+
+    def search_token_valid(self, param: str, vocabulaire: dict[str, float]) -> list[int]:
+
+        token_valid: list[int] = []
+        if param == "number":
+            for key, value in vocabulaire.items():
+                try:
+                    if "Ġ" in key:
+                        temp = key.replace("Ġ", "")
+                        if "." in temp:
+                            temp = temp.replace(".", "")
+                        if "-" in temp:
+                            temp = temp.replace("-", "")
+                        float(temp)
+                        token_valid.append(value)
+                        continue
+                    if "." in key and len(key) == 1:
+                        token_valid.append(value)
+                        continue
+                    if "-"in key and len(key) == 1:
+                        token_valid.append(value)
+                        continue
+                    float(key)
+                    token_valid.append(value)
+                except ValueError:
+                    continue
+
+        if param == "string":
+            pass
+
+        return token_valid

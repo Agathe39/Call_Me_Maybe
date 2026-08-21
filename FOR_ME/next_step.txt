@@ -42,3 +42,6 @@ Récupérer les parametres:
     - b (number)
     Prompt: What is the sum of 2 and 3?
     Extract the parameter values as JSON: {"a":
+
+
+    demander aux autres comment ils ont géré le regex -> tiré du model ou ajouté eux-même
