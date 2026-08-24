@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/14 15:43:09 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/24 14:10:48 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -30,7 +30,7 @@ class FunctionCalling:
         self.final_prompt: str = ""
         self.result: dict[str, str] = {}
 
-    def function_response(self) -> dict[str, str]:
+    def function_response(self) -> dict[str, list[str]]:
         """Search for each prompt a compatible function name
 
         Returns:
@@ -203,4 +203,4 @@ class FunctionCalling:
         prompt: str = prompt_response[0]
         function: str = prompt_response[-1].split(": ")[1]
 
-        self.result[prompt] = function
+        self.result[prompt] = [function]

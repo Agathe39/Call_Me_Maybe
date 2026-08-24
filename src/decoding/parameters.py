@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/21 17:27:15 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/24 14:34:51 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -16,19 +16,21 @@ import json
 
 class Parameters:
 
-    def __init__(self):
+    def __init__(self, functions_names: dict[str, list[str]]):
+        self.functions_names = functions_names
         self.test = Small_LLM_Model()
         self.all_info: dict[str, list[str | dict[str, str]]] = {}
         self.prompts: list[list[str]] = []
         self.basics_prompts: list[list[str]] = []
         self.prompt_funct_param: dict[str, list[str]] = {}
 
-    def parameters_calling(self, prompts_functions: dict[str, str]) -> dict[str, list[str]]:
+    def parameters_calling(self) -> dict[str, list[str]]:
 
-        self.search_info_function(prompts_functions)
+        self.search_info_function(self.functions_names)
         self.construct_prompts()
         self.calling_llm()
-        
+
+        return self.functions_names
 
     def search_info_function(self, prompts_functions: dict[str, str]) -> None:
 
@@ -50,7 +52,7 @@ class Parameters:
 
         for prompt, funct_name in prompts_functions.items():
             for funct, parameter in all_parameters.items():
-                if funct_name == funct:
+                if funct_name[0] == funct:
                     self.all_info[prompt] = [funct, parameter]
                     self.prompt_funct_param[prompt] = [funct]
 
@@ -83,44 +85,59 @@ class Parameters:
 
             for nbr, param in enumerate(param_wanted):
 
-                very_best_token: dict[int, float] = {}
-                token_valid: list[int] = self.search_token_valid(param, vocabulaire)
-                prompt += f" parameters {nbr+1}: "
+                if param == "number":
 
-                while ((very_best_token == {}) or (next(key for key in very_best_token) in token_valid)) and (param == "number"):
+                    very_best_token: dict[int, float] = {}
+                    token_valid: list[int] = self.search_token_valid(param, vocabulaire)
+                    prompt += f" parameters {nbr+1}: "
 
-                    very_best_token = {}
-                    score_valid: dict[int, float] = {}
+                    while ((very_best_token == {}) or (next(key for key in very_best_token) in token_valid)):
 
-                    tensor_prompt = self.test.encode(prompt)
-                    encode_prompt = tensor_prompt[0].tolist()
-                    score_prompt = self.test.get_logits_from_input_ids(encode_prompt)
+                        very_best_token = {}
+                        score_valid: dict[int, float] = {}
 
-                    for i, score in enumerate(score_prompt):
-                        if i in token_valid:
-                            score_valid[i] = score
+                        tensor_prompt = self.test.encode(prompt)
+                        encode_prompt = tensor_prompt[0].tolist()
+                        score_prompt = self.test.get_logits_from_input_ids(encode_prompt)
 
-                    if score_valid:
-
-                        max_score_total = max([value for value in score_prompt])
                         for i, score in enumerate(score_prompt):
-                            if score == max_score_total:
-                                very_best_token[i] = score
+                            if i in token_valid:
+                                score_valid[i] = score
 
-                        max_score_valid = max([value for value in score_valid.values()])
+                        if score_valid:
 
-                        if max_score_total in [value for value in score_valid.values()]:
-                            for key, value in score_valid.items():
-                                if value == max_score_valid:
-                                    response = self.test.decode(key)
-                                    prompt += f"{response}"
+                            max_score_total = max([value for value in score_prompt])
+                            for i, score in enumerate(score_prompt):
+                                if score == max_score_total:
+                                    very_best_token[i] = score
 
-                if nbr + 1 != len(param_wanted):
-                    prompt += ","
+                            max_score_valid = max([value for value in score_valid.values()])
 
-            if nbr + 1 == len(param_wanted) and param == "number":
-                print(prompt)
-                print()
+                            if max_score_total in [value for value in score_valid.values()]:
+                                for key, value in score_valid.items():
+                                    if value == max_score_valid:
+                                        response = self.test.decode(key)
+                                        prompt += f"{response}"
+
+                    if nbr + 1 != len(param_wanted):
+                        prompt += ","
+
+                elif param == "string":
+
+                    token: str = ""
+                    prompt += f" parameters {nbr+1}: '"
+
+                    while "'" not in token:
+                    
+                        encode_prompt = self.test.encode(prompt)[0].tolist()
+                        all_score = self.test.get_logits_from_input_ids(encode_prompt)
+                        best_score = max(value for value in all_score)
+                        best_token = all_score.index(best_score)
+                        token = self.test.decode(best_token)
+                        prompt += token
+
+                if nbr + 1 == len(param_wanted):
+                    self.extract_param(prompt)
 
     def get_param_type(self, prompt: str) -> list[str]:
 
@@ -170,3 +187,14 @@ class Parameters:
             pass
 
         return token_valid
+
+    def extract_param(self, prompts: str) -> None:
+
+        prompt1 = prompts.split("Prompt: ")[1]
+        prompt2 = prompt1.split("Extract")[0]
+
+        parameters = prompts.split("values -> ")[1]
+
+        for p in self.functions_names:
+            if p in prompt2:
+                self.functions_names[p].append(parameters)
