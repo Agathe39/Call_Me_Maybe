@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/25 17:23:55 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/25 17:48:12 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -40,22 +40,22 @@ class FunctionCalling:
         try:
             self.get_functions_info()
         except PermissionError:
-            print("ERROR: denied permission")
-            sys.exit
+            print("\nERROR: function definition file denied permission")
+            sys.exit()
         except FileNotFoundError:
-            print("ERROR: file not found")
-            sys.exit
+            print("\nERROR: function definition file not found")
+            sys.exit()
 
         print()
 
         try:
             self.get_prompts()
         except PermissionError:
-            print("ERROR: denied permission")
-            sys.exit
+            print("\nERROR: calling test file denied permission")
+            sys.exit()
         except FileNotFoundError:
-            print("ERROR: file not found")
-            sys.exit
+            print("\nERROR: calling test file not found")
+            sys.exit()
 
         self.construct_prompt()
 
@@ -90,7 +90,7 @@ class FunctionCalling:
         """Get the name and the description for each function
         """
 
-        with open("data/input/functions_definition.json", "r") as f:
+        with open(sys.argv[1], "r") as f:
             docs = json.load(f)
             for doc in docs:
                 self.functions_names.append(doc.get("name"))
@@ -106,11 +106,17 @@ class FunctionCalling:
         Returns:
             list: all prompts
         """
-
-        with open("data/input/function_calling_tests.json", "r") as f:
-            docs = json.load(f)
-            for doc in docs:
-                self.prompts.append(doc.get('prompt'))
+        try:
+            with open(sys.argv[2], "r") as f:
+                docs = json.load(f)
+                for doc in docs:
+                    self.prompts.append(doc.get('prompt'))
+        except FileNotFoundError:
+            print("ERROR: The calling test file not found")
+            sys.exit()
+        except PermissionError:
+            print("ERROR: no permission to read calling test file")
+            sys.exit()
 
     def construct_prompt(self) -> None:
         """Construct a prompt with name and descrition functions

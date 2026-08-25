@@ -1,8 +1,12 @@
 .SILENT:
 
+FUNC_DEF = "data/functions_definition.json"
+INPUT_FILE = "data/input/function_calling_tests.json"
+OUTPUT_FILE = ""
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 			 --ignore-missing-imports \
 			 --disallow-untyped-defs \
+			 --check-untyped-defs
 			 
 
 .PHONY: all run install debug lint lint-strict clean fclean help
@@ -11,14 +15,14 @@ MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 all: install run
 
 run:
-	uv run python -m src
+	uv run python -m src $(FUNC_DEF) $(INPUT_FILE) $(OUTPUT_FILE)
 
 install: 
 	uv sync
 	uv add pydantic flake8 mypy pytest numpy
 
 debug:
-	python -m pdb src
+	uv run python -m pdb src
 
 lint:
 	uv run python -m flake8 .

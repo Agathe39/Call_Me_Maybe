@@ -6,13 +6,14 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/25 17:20:42 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/25 17:44:42 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from llm_sdk import Small_LLM_Model
 import json
 from typing import Any
+import sys
 
 
 class Parameters:
@@ -55,18 +56,18 @@ class Parameters:
 
         try:
 
-            with open("data/input/functions_definition.json", "r") as f:
+            with open(sys.argv[1], "r") as f:
                 docs = json.load(f)
                 for doc in docs:
                     all_parameters[doc.get("name")] = [doc.get("description"),
                                                        doc.get("parameters")]
 
         except FileNotFoundError:
-            print("ERROR: file not found")
-            return
+            print("ERROR: The definition function file not found")
+            sys.exit()
         except PermissionError:
-            print("ERROR: no permission to read the file")
-            return
+            print("ERROR: no permission to read the definition function file")
+            sys.exit()
 
         for prompt, funct_name in prompts_functions.items():
             for funct, parameter in all_parameters.items():
