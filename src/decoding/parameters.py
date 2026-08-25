@@ -6,12 +6,13 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/25 15:31:17 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/25 17:20:42 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from llm_sdk.llm_sdk import Small_LLM_Model
+from llm_sdk import Small_LLM_Model
 import json
+from typing import Any
 
 
 class Parameters:
@@ -19,9 +20,9 @@ class Parameters:
     def __init__(self, functions_names: dict[str, list[str]]):
         self.functions_names = functions_names
         self.test = Small_LLM_Model()
-        self.all_info: dict[str, list[str | dict[str, str]]] = {}
-        self.prompts: list[list[str]] = []
-        self.basics_prompts: list[list[str]] = []
+        self.all_info: dict[str, list[Any]] = {}
+        self.prompts: list[str] = []
+        self.basics_prompts: list[str] = []
         self.prompt_funct_param: dict[str, list[str]] = {}
 
     def parameters_calling(self) -> dict[str, list[str]]:
@@ -40,7 +41,8 @@ class Parameters:
 
         return self.functions_names
 
-    def search_info_function(self, prompts_functions: dict[str, str]) -> None:
+    def search_info_function(self,
+                             prompts_functions: dict[str, list[str]]) -> None:
         """Picks the name and the description of each functions
 
         Args:
@@ -49,7 +51,7 @@ class Parameters:
                                                 for value
         """
 
-        all_parameters: dict[str, list[dict, str]] = {}
+        all_parameters: dict[str, list[dict | str]] = {}
 
         try:
 
@@ -99,7 +101,7 @@ class Parameters:
 
         voc = self.test.get_path_to_vocab_file()
         with open(voc, "r") as v:
-            vocabulaire = json.load(v)
+            vocabulaire: dict[str, int] = json.load(v)
 
         for prompt in self.prompts:
 
@@ -145,7 +147,7 @@ class Parameters:
                                                    score_valid.values()]:
                                 for key, value in score_valid.items():
                                     if value == max_score_valid:
-                                        response = self.test.decode(key)
+                                        response = self.test.decode([key])
                                         prompt += f"{response}"
 
                     if nbr + 1 != len(param_wanted):
@@ -163,7 +165,7 @@ class Parameters:
                             encode_prompt)
                         best_score = max(value for value in all_score)
                         best_token = all_score.index(best_score)
-                        token = self.test.decode(best_token)
+                        token = self.test.decode([best_token])
                         prompt += token
 
                 if nbr + 1 == len(param_wanted):
@@ -208,7 +210,7 @@ class Parameters:
         return lenght
 
     def search_token_valid(self, param: str,
-                           vocabulaire: dict[str, float]) -> list[int]:
+                           vocabulaire: dict[str, int]) -> list[int]:
         """Search for integers parameters,
            all tokens who are possibly an integers
 

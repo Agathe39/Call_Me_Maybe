@@ -6,17 +6,18 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/24 14:10:48 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/25 17:23:55 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from llm_sdk.llm_sdk import Small_LLM_Model
+from llm_sdk import Small_LLM_Model
 import json
+import sys
 
 
 class FunctionCalling:
 
-    def __init__(self):
+    def __init__(self) -> None:
 
         self.test = Small_LLM_Model()
         self.functions_names: list[str] = []
@@ -28,7 +29,7 @@ class FunctionCalling:
         self.end_prompt: str = "Given the prompt above, "\
                                "the matching function is: "
         self.final_prompt: str = ""
-        self.result: dict[str, str] = {}
+        self.result: dict[str, list[str]] = {}
 
     def function_response(self) -> dict[str, list[str]]:
         """Search for each prompt a compatible function name
@@ -40,10 +41,10 @@ class FunctionCalling:
             self.get_functions_info()
         except PermissionError:
             print("ERROR: denied permission")
-            return
+            sys.exit
         except FileNotFoundError:
             print("ERROR: file not found")
-            return
+            sys.exit
 
         print()
 
@@ -51,10 +52,10 @@ class FunctionCalling:
             self.get_prompts()
         except PermissionError:
             print("ERROR: denied permission")
-            return
+            sys.exit
         except FileNotFoundError:
             print("ERROR: file not found")
-            return
+            sys.exit
 
         self.construct_prompt()
 
@@ -66,7 +67,7 @@ class FunctionCalling:
                                 prompt + "\n" + \
                                 self.end_prompt
 
-            self.max_tokens: list[int] = []
+            self.max_tokens: list[int | float] = []
             self.ids_token: list[float] = []
 
             self.need_break: bool = False
@@ -99,7 +100,7 @@ class FunctionCalling:
             self.functions_id.append(self.test.encode(name).tolist()[0])
             self.all_functions_id.extend(self.test.encode(name).tolist()[0])
 
-    def get_prompts(self) -> list:
+    def get_prompts(self) -> None:
         """Get all prompts
 
         Returns:
@@ -119,7 +120,7 @@ class FunctionCalling:
             self.first_prompt += f"Function {i}: {name} " \
                                  f"-> {self.function_descriptions[i]} \n"
 
-    def get_valid_function(self, max_len) -> None:
+    def get_valid_function(self, max_len: int) -> None:
         """Compare functions with prompt to keep only
            possible functions depending on prompt
 
@@ -130,7 +131,7 @@ class FunctionCalling:
 
         for nbr in range(max_len):
 
-            self.functions_id_valid: list[int] = []
+            self.functions_id_valid: list[list[int]] = []
 
             ids_prompt = self.test.get_logits_from_input_ids(
                 self.encode_prompt)
@@ -149,7 +150,8 @@ class FunctionCalling:
             self.max_tokens.append(self.max_token)
             self.encode_prompt.append(self.max_token)
 
-    def search_token(self, ids_prompt, nbr) -> list[list[float | int]]:
+    def search_token(self, ids_prompt: list[float],
+                     nbr: int) -> list[list[float | int]]:
 
         ids_token = []
 
