@@ -41,6 +41,7 @@ fclean:
 	rm -rf .venv
 
 help:
+	echo "\n"
 	echo "make install: generates the virtual environment and installs the dependencies"
 	echo "make run: run the programe"
 	echo "make debug: launches the Pdb debugging tool"
@@ -48,4 +49,5 @@ help:
 	echo "make lint-strict: run flake8 and mypy more strictly"
 	echo "make clean: delete the cache"
 	echo "make fclean: delete the virtual environnement"
+	echo "\n"
 
