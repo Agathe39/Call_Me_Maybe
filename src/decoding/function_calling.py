@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/27 13:06:41 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/27 16:50:27 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -90,7 +90,7 @@ class FunctionCalling:
         """Get the name and the description for each function
         """
 
-        try: 
+        try:
             with open(sys.argv[1], "r") as f:
                 docs = json.load(f)
                 for doc in docs:

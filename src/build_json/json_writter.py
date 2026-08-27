@@ -6,12 +6,13 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/08/27 16:45:41 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/27 16:59:11 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import sys
 import json
+from typing import Any, cast
 
 
 class JsonWritten:
@@ -24,12 +25,13 @@ class JsonWritten:
         docs = self.get_func()
 
         for prompt, func_param in functions_parameters.items():
-            name_param: list[str] = self.get_parameters_name(func_param[0], docs)
+            name_param: list[str] = self.get_parameters_name(
+                func_param[0], docs)
             self.transform_data(prompt, func_param, name_param)
 
         self.create_json()
 
-    def get_func(self) -> list[dict]:
+    def get_func(self) -> list[dict[Any, Any]]:
 
         try:
 
@@ -43,7 +45,7 @@ class JsonWritten:
             print("ERROR: function calling results file denied permission")
             sys.exit()
 
-        return docs
+        return cast(list[dict[Any, Any]], docs)
 
     def get_parameters_name(self, func: str, docs: list[dict]) -> list[str]:
 
@@ -52,21 +54,28 @@ class JsonWritten:
         for function in docs:
             if function.get("name") == func:
                 param = function.get("parameters")
-                for name in param:
-                    if name != "return":
-                        result.append(name)
+                if param:
+                    for name in param:
+                        if name != "return":
+                            result.append(name)
 
         return result
 
-    def transform_data(self, prompt: str, func_param: list[str], name_param: list[str]) -> None:
+    def transform_data(self, prompt: str,
+                       func_param: list[str],
+                       name_param: list[str]) -> None:
 
         name: str = func_param[0]
         func_param.remove(name)
 
         param = self.purge_param(func_param)
         parameters = self.organise_param(param, name_param)
-        
-        self.data.append({"prompt": prompt, "name": name, "parameters": parameters})
+
+        self.data.append({
+            "prompt": prompt,
+            "name": name,
+            "parameters": parameters
+            })
 
     def purge_param(self, parameters: list[str]) -> list[str]:
 
@@ -84,25 +93,28 @@ class JsonWritten:
 
         return all_param
 
-    def organise_param(self, param, name_param) -> dict[str, str | float]:
+    def organise_param(self, param: list[str],
+                       name_param: list[str]) -> dict[str, str | float]:
 
         parameters: dict[str, str | float] = {}
+        temp: str | float = ""
 
         for i, name in enumerate(name_param):
 
+            temp = param[i]
             try:
-                param[i] = float(param[i])
+                temp = float(param[i])
             except ValueError:
                 pass
 
-            parameters[name] = param[i]
+            parameters[name] = temp
 
         return parameters
 
     def create_json(self) -> None:
 
         try:
-        
+
             with open(sys.argv[3], "w") as write:
                 json.dump(self.data, write, indent=4)
                 print(f"\nYou can open {sys.argv[3]}, that's ready ! :)\n")

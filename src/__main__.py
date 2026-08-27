@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/06 16:13:44 by agathe          #+#    #+#               #
-#  Updated: 2026/08/26 14:09:12 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/27 16:47:55 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -25,7 +25,7 @@ def main() -> None:
 
     create_json = JsonWritten()
     create_json.write_output(functions_parameters)
-    
+
 
 if __name__ == "__main__":
     main()
