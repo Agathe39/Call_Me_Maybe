@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/25 17:48:12 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/27 13:06:41 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -90,11 +90,18 @@ class FunctionCalling:
         """Get the name and the description for each function
         """
 
-        with open(sys.argv[1], "r") as f:
-            docs = json.load(f)
-            for doc in docs:
-                self.functions_names.append(doc.get("name"))
-                self.function_descriptions.append(doc.get("description"))
+        try: 
+            with open(sys.argv[1], "r") as f:
+                docs = json.load(f)
+                for doc in docs:
+                    self.functions_names.append(doc.get("name"))
+                    self.function_descriptions.append(doc.get("description"))
+        except FileNotFoundError:
+            print("ERROR: function calling file not found")
+            sys.exit()
+        except PermissionError:
+            print("ERROR: function calling file denied permission")
+            sys.exit()
 
         for name in self.functions_names:
             self.functions_id.append(self.test.encode(name).tolist()[0])

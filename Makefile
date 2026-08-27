@@ -2,7 +2,7 @@
 
 FUNC_DEF = "data/input/functions_definition.json"
 INPUT_FILE = "data/input/function_calling_tests.json"
-OUTPUT_FILE = ""
+OUTPUT_FILE = ""data/output/function_calling_results.json""
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 			 --ignore-missing-imports \
 			 --disallow-untyped-defs \
