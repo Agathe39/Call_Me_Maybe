@@ -1,6 +1,6 @@
 .SILENT:
 
-FUNC_DEF = "data/functions_definition.json"
+FUNC_DEF = "data/input/functions_definition.json"
 INPUT_FILE = "data/input/function_calling_tests.json"
 OUTPUT_FILE = ""
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
