@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/27 16:50:27 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/28 10:25:20 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -37,26 +37,9 @@ class FunctionCalling:
         Returns:
             dict[str, str]: key = prompt and value = function's name
         """
-        try:
-            self.get_functions_info()
-        except PermissionError:
-            print("\nERROR: function definition file denied permission")
-            sys.exit()
-        except FileNotFoundError:
-            print("\nERROR: function definition file not found")
-            sys.exit()
-
-        print()
-
-        try:
-            self.get_prompts()
-        except PermissionError:
-            print("\nERROR: calling test file denied permission")
-            sys.exit()
-        except FileNotFoundError:
-            print("\nERROR: calling test file not found")
-            sys.exit()
-
+        
+        self.get_functions_info()
+        self.get_prompts()
         self.construct_prompt()
 
         max_len = max([len(ids) for ids in self.functions_id])
@@ -96,11 +79,14 @@ class FunctionCalling:
                 for doc in docs:
                     self.functions_names.append(doc.get("name"))
                     self.function_descriptions.append(doc.get("description"))
+        except json.JSONDecodeError:
+            print(f"\nERROR: {sys.argv[1]} is unreadable\n")
+            sys.exit()
         except FileNotFoundError:
-            print("ERROR: function calling file not found")
+            print("\nERROR: function calling file not found\n")
             sys.exit()
         except PermissionError:
-            print("ERROR: function calling file denied permission")
+            print("\nERROR: function calling file denied permission\n")
             sys.exit()
 
         for name in self.functions_names:
@@ -114,15 +100,20 @@ class FunctionCalling:
             list: all prompts
         """
         try:
+
             with open(sys.argv[2], "r") as f:
                 docs = json.load(f)
                 for doc in docs:
                     self.prompts.append(doc.get('prompt'))
+
+        except json.JSONDecodeError:
+            print(f"\nERROR: {sys.argv[2]} is unreadable\n")
+            sys.exit()
         except FileNotFoundError:
-            print("ERROR: The calling test file not found")
+            print("\nERROR: The calling test file not found\n")
             sys.exit()
         except PermissionError:
-            print("ERROR: no permission to read calling test file")
+            print("\nERROR: no permission to read calling test file\n")
             sys.exit()
 
     def construct_prompt(self) -> None:

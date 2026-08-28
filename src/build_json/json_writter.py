@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/08/27 16:59:11 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/28 12:27:54 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -38,6 +38,9 @@ class JsonWritten:
             with open(sys.argv[1], "r") as file:
                 docs = json.load(file)
 
+        except json.JSONDecodeError:
+            print(f"ERROR: {sys.argv[1]} is unreadable")
+            sys.exit()
         except FileNotFoundError:
             print("ERROR: function calling results file not found")
             sys.exit()
@@ -86,9 +89,9 @@ class JsonWritten:
         for i, param in enumerate(params):
             if "\n" in param:
                 param = param.split("\n")[0]
-            param = param.replace(f"parameters {i+1}:", "")
+            param = param.replace(f"parameters {i+1}: ", "")
             param = param.replace("'", "")
-            param = param.replace(" ", "")
+            # param = param.replace(" ", "")
             all_param.append(param)
 
         return all_param
@@ -100,12 +103,15 @@ class JsonWritten:
         temp: str | float = ""
 
         for i, name in enumerate(name_param):
-
-            temp = param[i]
-            try:
-                temp = float(param[i])
-            except ValueError:
-                pass
+            if i < len(param):
+                temp = param[i]
+                try:
+                    temp = float(param[i])
+                except ValueError:
+                    pass
+                # except IndexError:
+                #     i + 1
+                #     continue
 
             parameters[name] = temp
 

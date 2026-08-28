@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/25 17:44:42 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/28 10:23:06 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -62,6 +62,9 @@ class Parameters:
                     all_parameters[doc.get("name")] = [doc.get("description"),
                                                        doc.get("parameters")]
 
+        except json.JSONDecodeError:
+            print(f"ERROR: {sys.argv[1]} is unreadable")
+            sys.exit()
         except FileNotFoundError:
             print("ERROR: The definition function file not found")
             sys.exit()
