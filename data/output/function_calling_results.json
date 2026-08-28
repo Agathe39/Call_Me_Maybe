@@ -1,5 +1,12 @@
 [
     {
+        "prompt": "Reverse the string 'What is the sum of 2 and 3?'",
+        "name": "fn_reverse_string",
+        "parameters": {
+            "s": "What is the sum of 2 and 3?"
+        }
+    },
+    {
         "prompt": "What is the sum of 2 and 3?",
         "name": "fn_add_numbers",
         "parameters": {

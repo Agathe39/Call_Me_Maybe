@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/28 10:23:06 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/28 12:46:52 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -261,9 +261,10 @@ class Parameters:
 
         prompt1 = prompts.split("Prompt: ")[1]
         prompt2 = prompt1.split("Extract")[0]
+        prompt2 = prompt2.replace("\n", "")
 
         parameters = prompts.split("values -> ")[1]
 
         for p in self.functions_names:
-            if p in prompt2:
+            if p == prompt2:
                 self.functions_names[p].append(parameters)
