@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/08/28 12:27:54 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/29 12:44:21 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -90,8 +90,11 @@ class JsonWritten:
             if "\n" in param:
                 param = param.split("\n")[0]
             param = param.replace(f"parameters {i+1}: ", "")
+
+            if " parameters " in param:
+                param = param.split(" parameters ")[0]
+
             param = param.replace("'", "")
-            # param = param.replace(" ", "")
             all_param.append(param)
 
         return all_param
