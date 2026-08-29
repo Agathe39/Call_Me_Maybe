@@ -66,10 +66,11 @@
     },
     {
         "prompt": "Replace all numbers in \"Hello 34 I'm 233 years old\" with NUMBERS",
-        "name": "fn_add_numbers",
+        "name": "fn_substitute_string_with_regex",
         "parameters": {
-            "a": 34.0,
-            "b": 233.0
+            "source_string": "Hello 34 Im parameters 2: Hello 34 Im parameters 3: 233 years old",
+            "regex": "Hello 34 Im parameters 2: Hello 34 Im parameters 3: 233 years old",
+            "replacement": "Hello 34 Im parameters 2: Hello 34 Im parameters 3: 233 years old"
         }
     },
     {

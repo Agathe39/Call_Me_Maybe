@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/28 10:25:20 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/29 12:13:01 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -26,8 +26,8 @@ class FunctionCalling:
         self.all_functions_id: list[int] = []
         self.prompts: list[str] = []
         self.first_prompt: str = ""
-        self.end_prompt: str = "Given the prompt above, "\
-                               "the matching function is: "
+        self.end_prompt: str = "\nBased on the intended action above, "\
+                       "the correct matching function is: "
         self.final_prompt: str = ""
         self.result: dict[str, list[str]] = {}
 
@@ -120,9 +120,20 @@ class FunctionCalling:
         """Construct a prompt with name and descrition functions
         """
 
+        self.first_prompt = (
+        "You are a function-calling assistant. Below is a list of "
+        "available functions, each with a name and description.\n\n")
+
         for i, name in enumerate(self.functions_names):
             self.first_prompt += f"Function {i}: {name} " \
-                                 f"-> {self.function_descriptions[i]} \n"
+                                f"-> {self.function_descriptions[i]} \n"
+
+        self.first_prompt += (
+        "\nRead the user prompt carefully and identify the action "
+        "the user actually wants performed. Do not select a function "
+        "just because a word in its name also appears in the prompt "
+        "text — focus on the intended operation, not surface wording.\n\n"
+        "User prompt: ")
 
     def get_valid_function(self, max_len: int) -> None:
         """Compare functions with prompt to keep only
@@ -203,10 +214,8 @@ class FunctionCalling:
         """Matches the prompt with the expected function name
         """
 
-        final_prompt_split: list[str] = self.final_prompt.split("\n")
-        prompt_response: list[str] = final_prompt_split[-2:]
-
-        prompt: str = prompt_response[0]
-        function: str = prompt_response[-1].split(": ")[1]
+        prompt = self.final_prompt.split("User prompt: ")[1].split("\n")[0]
+        function = self.final_prompt.split(
+        "matching function is: ")[1].split("\n")[0].strip()
 
         self.result[prompt] = [function]
