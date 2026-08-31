@@ -2,7 +2,7 @@
 
 FUNC_DEF = "data/input/functions_definition.json"
 INPUT_FILE = "data/input/function_calling_tests.json"
-OUTPUT_FILE = ""data/output/function_calling_results.json""
+OUTPUT_FILE = "data/output/function_calling_results.json"
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 			 --ignore-missing-imports \
 			 --disallow-untyped-defs \
@@ -19,7 +19,7 @@ run:
 
 install: 
 	uv sync
-	uv add pydantic flake8 mypy pytest numpy
+	uv add pydantic flake8 mypy pytest numpy torch transformers huggingface-hub
 
 debug:
 	uv run python -m pdb src
@@ -36,6 +36,7 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} \;
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
+	rm -rf $(OUTPUT_FILE)
 
 fclean:
 	rm -rf .venv

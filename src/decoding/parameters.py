@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/08/29 14:28:34 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/31 13:27:13 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -18,9 +18,9 @@ import sys
 
 class Parameters:
 
-    def __init__(self, functions_names: dict[str, list[str]]):
+    def __init__(self, llm, functions_names: dict[str, list[str]]):
+        self.llm = llm
         self.functions_names = functions_names
-        self.test = Small_LLM_Model()
         self.all_info: dict[str, list[Any]] = {}
         self.prompts: list[str] = []
         self.basics_prompts: list[str] = []
@@ -103,11 +103,14 @@ class Parameters:
         """Search for the parameters in each final prompt
         """
 
-        voc = self.test.get_path_to_vocab_file()
+        voc = self.llm.get_path_to_vocab_file()
         with open(voc, "r") as v:
             vocabulaire: dict[str, int] = json.load(v)
 
         for prompt in self.prompts:
+
+            print(prompt)
+            print()
 
             param_wanted = self.get_param_type(prompt)
 
@@ -127,9 +130,9 @@ class Parameters:
                         very_best_token = {}
                         score_valid: dict[int, float] = {}
 
-                        tensor_prompt = self.test.encode(prompt)
+                        tensor_prompt = self.llm.encode(prompt)
                         encode_prompt = tensor_prompt[0].tolist()
-                        score_prompt = self.test.get_logits_from_input_ids(
+                        score_prompt = self.llm.get_logits_from_input_ids(
                             encode_prompt)
 
                         for i, score in enumerate(score_prompt):
@@ -151,7 +154,7 @@ class Parameters:
                                                    score_valid.values()]:
                                 for key, value in score_valid.items():
                                     if value == max_score_valid:
-                                        response = self.test.decode([key])
+                                        response = self.llm.decode([key])
                                         prompt += f"{response}"
 
                     if nbr + 1 != len(param_wanted):
@@ -164,12 +167,12 @@ class Parameters:
 
                     while "'" not in token:
 
-                        encode_prompt = self.test.encode(prompt)[0].tolist()
-                        all_score = self.test.get_logits_from_input_ids(
+                        encode_prompt = self.llm.encode(prompt)[0].tolist()
+                        all_score = self.llm.get_logits_from_input_ids(
                             encode_prompt)
                         best_score = max(value for value in all_score)
                         best_token = all_score.index(best_score)
-                        token = self.test.decode([best_token])
+                        token = self.llm.decode([best_token])
                         prompt += token
 
                 if nbr + 1 == len(param_wanted):

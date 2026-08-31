@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/29 12:13:01 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/31 10:59:05 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -17,9 +17,9 @@ import sys
 
 class FunctionCalling:
 
-    def __init__(self) -> None:
+    def __init__(self, llm) -> None:
 
-        self.test = Small_LLM_Model()
+        self.llm = llm
         self.functions_names: list[str] = []
         self.functions_id: list[list[int]] = []
         self.function_descriptions: list[str] = []
@@ -55,15 +55,15 @@ class FunctionCalling:
 
             self.need_break: bool = False
 
-            self.encode_prompt = self.test.encode(
+            self.encode_prompt = self.llm.encode(
                 self.final_prompt).tolist()[0]
 
-            self.ids_prompt = self.test.get_logits_from_input_ids(
+            self.ids_prompt = self.llm.get_logits_from_input_ids(
                 self.encode_prompt)
 
             self.get_valid_function(max_len)
 
-            self.final_prompt = self.test.decode(self.encode_prompt)
+            self.final_prompt = self.llm.decode(self.encode_prompt)
 
             self.recup_result()
 
@@ -90,8 +90,8 @@ class FunctionCalling:
             sys.exit()
 
         for name in self.functions_names:
-            self.functions_id.append(self.test.encode(name).tolist()[0])
-            self.all_functions_id.extend(self.test.encode(name).tolist()[0])
+            self.functions_id.append(self.llm.encode(name).tolist()[0])
+            self.all_functions_id.extend(self.llm.encode(name).tolist()[0])
 
     def get_prompts(self) -> None:
         """Get all prompts
@@ -148,13 +148,13 @@ class FunctionCalling:
 
             self.functions_id_valid: list[list[int]] = []
 
-            ids_prompt = self.test.get_logits_from_input_ids(
+            ids_prompt = self.llm.get_logits_from_input_ids(
                 self.encode_prompt)
 
             self.determines_valid_function()
 
             if self.need_break is True:
-                self.final_prompt = self.test.decode(self.encode_prompt)
+                self.final_prompt = self.llm.decode(self.encode_prompt)
                 break
 
             ids_token = self.search_token(ids_prompt, nbr)
