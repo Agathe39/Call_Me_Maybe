@@ -6,20 +6,22 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/31 10:59:05 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/31 18:11:23 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from llm_sdk import Small_LLM_Model
+from typing import Any
 import json
 import sys
 
 
 class FunctionCalling:
 
-    def __init__(self, llm) -> None:
+    def __init__(self, llm, json_data: dict[str, list[dict[str, Any]]]) -> None:
 
         self.llm = llm
+        self.json_data = json_data
         self.functions_names: list[str] = []
         self.functions_id: list[list[int]] = []
         self.function_descriptions: list[str] = []
@@ -37,7 +39,7 @@ class FunctionCalling:
         Returns:
             dict[str, str]: key = prompt and value = function's name
         """
-        
+
         self.get_functions_info()
         self.get_prompts()
         self.construct_prompt()
@@ -73,21 +75,11 @@ class FunctionCalling:
         """Get the name and the description for each function
         """
 
-        try:
-            with open(sys.argv[1], "r") as f:
-                docs = json.load(f)
-                for doc in docs:
-                    self.functions_names.append(doc.get("name"))
-                    self.function_descriptions.append(doc.get("description"))
-        except json.JSONDecodeError:
-            print(f"\nERROR: {sys.argv[1]} is unreadable\n")
-            sys.exit()
-        except FileNotFoundError:
-            print("\nERROR: function calling file not found\n")
-            sys.exit()
-        except PermissionError:
-            print("\nERROR: function calling file denied permission\n")
-            sys.exit()
+        functions = self.json_data.get("functions")
+
+        for function in functions:
+            self.functions_names.append(function.get("name"))
+            self.function_descriptions.append(function.get("description"))
 
         for name in self.functions_names:
             self.functions_id.append(self.llm.encode(name).tolist()[0])
@@ -99,22 +91,11 @@ class FunctionCalling:
         Returns:
             list: all prompts
         """
-        try:
 
-            with open(sys.argv[2], "r") as f:
-                docs = json.load(f)
-                for doc in docs:
-                    self.prompts.append(doc.get('prompt'))
+        prompts = self.json_data.get("prompts")
 
-        except json.JSONDecodeError:
-            print(f"\nERROR: {sys.argv[2]} is unreadable\n")
-            sys.exit()
-        except FileNotFoundError:
-            print("\nERROR: The calling test file not found\n")
-            sys.exit()
-        except PermissionError:
-            print("\nERROR: no permission to read calling test file\n")
-            sys.exit()
+        for prompt in prompts:
+            self.prompts.append(prompt.get("prompt"))
 
     def construct_prompt(self) -> None:
         """Construct a prompt with name and descrition functions

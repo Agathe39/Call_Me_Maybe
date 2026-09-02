@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 11:16:01 by agathe          #+#    #+#               #
-#  Updated: 2026/08/31 13:38:41 by agathe          ###   ########.fr        #
+#  Updated: 2026/08/31 18:34:51 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -22,11 +22,11 @@ class TestLlm:
 
     def generate_test(self) -> None:
 
-        print(self.functions_names)
 
-        prompt = "{'system': 'get parameters values in content', 'content': 'prompt', 'parameters': 'number'}\nassistant': "
 
-    def construct_prompt(functions_names: dict[str, list[str]]): 
+
+
+
 
 
 
