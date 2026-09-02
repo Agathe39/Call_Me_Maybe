@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/02 11:44:58 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/02 16:22:45 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -78,16 +78,16 @@ class Parameters:
 
     def construct_prompts(self) -> None:
 
-        system_prompt = "Extract the best argument."
+        system_prompt = "Give the parameters with correct type, in a prompt."
 
         self.prompts = []
         for prompt, func_info in self.functions_names.items():
             formatted = (
                 "["
-                "{"f"system: {system_prompt}""},"
-                "{"f"content: {prompt}""},"
-                "{"f"function_description: {func_info[1]}""},"
-                "{"f"expected_parameters: {func_info[2]}""}"
+                "{"f"\"system\": \"{system_prompt}\"""},"
+                "{"f"\"content\": \"{prompt}\"""},"
+                "{"f"\"function\": \"{func_info[1]}\"""},"
+                "{"f"\"parameters\": {[f.replace(' ', ':') for f in func_info[2]]}""}"
                 "]\nassistant:")
             self.prompts.append((prompt, formatted))
 
@@ -110,11 +110,16 @@ class Parameters:
                 # else:
                 #     mode = False
 
-                formated_prompt += "\n" + param + ": "
+                if "string" in param:
+                    formated_prompt += "\n" + param + ": \""
+                else:
+                    formated_prompt += "\n" + param + ": "
 
                 while True:
 
                     encode_prompt = self.llm.encode(formated_prompt)[0].tolist()
+                    # print(self.llm.decode(encode_prompt))
+                    # print()
                     results = self.llm.get_logits_from_input_ids(encode_prompt)
 
                     # if mode:
