@@ -6,9 +6,11 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/02 17:02:04 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/02 18:10:34 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+
+from multiprocessing.util import info
 
 from llm_sdk import Small_LLM_Model
 # import json
@@ -24,8 +26,9 @@ class Parameters:
         self.functions_names = functions_names
         self.json_data = json_data
         self.prompts: list[tuple[str]] = []
+        self.finals_prompts: list[str] = []
 
-    def parameters_calling(self) -> dict[str, list[str]]:
+    def parameters_calling(self) -> list[str]:
         """For each prompt, find the parameters corresponding
            to the extracted function
 
@@ -38,8 +41,9 @@ class Parameters:
         self.search_info_function(self.functions_names)
         self.construct_prompts()
         self.calling_llm()
+        self.organize_data()
 
-        # return self.functions_names
+        return self.finals_prompts
 
     def search_info_function(self,
                              prompts_functions: dict[str, list[str]]) -> None:
@@ -70,6 +74,8 @@ class Parameters:
                         func_info.append(params)
 
     def construct_prompts(self) -> None:
+        """Construct a formatted prompt that the LLM can understand
+        """
 
         system_prompt = "Give the parameters with correct type, in a content given, only that."
 
@@ -85,23 +91,23 @@ class Parameters:
             self.prompts.append((prompt, formatted))
 
     def calling_llm(self) -> None:
+        """Give the formatted prompt to the LLM in order to extract the function's parameters.
+        """
 
-        finals_prompts: list[str] = []
-
-        for original_prompt, formated_prompt in self.prompts:
+        for original_prompt, formatted_prompt in self.prompts:
 
             parameters = self.functions_names[original_prompt][2]
 
             for param in parameters:
 
                 if "string" in param:
-                    formated_prompt += "\n" + param + ": \""
+                    formatted_prompt += "\n" + param + ": \""
                 else:
-                    formated_prompt += "\n" + param + ": "
+                    formatted_prompt += "\n" + param + ": "
 
                 while True:
 
-                    encode_prompt = self.llm.encode(formated_prompt)[0].tolist()
+                    encode_prompt = self.llm.encode(formatted_prompt)[0].tolist()
                     results = self.llm.get_logits_from_input_ids(encode_prompt)
 
                     max_token = results.index(max(results))
@@ -109,28 +115,24 @@ class Parameters:
 
                     if "\n" in token:
                         token = token.replace("\n", "")
-                        formated_prompt += token
+                        formatted_prompt += token
                         break
 
-                    formated_prompt += token
+                    formatted_prompt += token
             
-            finals_prompts.append(formated_prompt)
+            self.finals_prompts.append(formatted_prompt)
 
-        for prompt in finals_prompts:
-            print()
-            print(prompt)
-            print()
-            print("---------------------------------------------------------------")
+        # for prompt in self.finals_prompts:
+        #     print()
+        #     print(prompt)
+        #     print()
+        #     print("---------------------------------------------------------------")
 
-    def search_parameters(self, prompt: str):
+    def organize_data(self) -> None:
+        """Add the function name at the end of each final prompt
+        """
 
-        parameters: list[str] = []
-
-        cut1 = prompt.split("'prompt': ")[1]
-        input_prompt = cut1.split(", \n'function':")[0]
-        input_prompt = input_prompt.strip("'")
-
-        for p, func_info in self.functions_names.items():
-            if p == input_prompt:
-                parameters = func_info[2]
-        return parameters
+        for prompt, funct_info in self.functions_names.items():
+            for i in range(len(self.finals_prompts)):
+                if prompt in self.finals_prompts[i]:
+                    self.finals_prompts[i] += f"\nfunction_name: {funct_info[0]}"
