@@ -6,12 +6,12 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/02 18:10:34 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/03 11:08:59 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from multiprocessing.util import info
-
+import re
 from llm_sdk import Small_LLM_Model
 # import json
 from typing import Any
@@ -27,6 +27,7 @@ class Parameters:
         self.json_data = json_data
         self.prompts: list[tuple[str]] = []
         self.finals_prompts: list[str] = []
+        self.result: dict[str, list[str]] = {}
 
     def parameters_calling(self) -> list[str]:
         """For each prompt, find the parameters corresponding
@@ -129,10 +130,45 @@ class Parameters:
         #     print("---------------------------------------------------------------")
 
     def organize_data(self) -> None:
-        """Add the function name at the end of each final prompt
+        """Organize data in order to send it to the construct json class
         """
 
         for prompt, funct_info in self.functions_names.items():
             for i in range(len(self.finals_prompts)):
                 if prompt in self.finals_prompts[i]:
                     self.finals_prompts[i] += f"\nfunction_name: {funct_info[0]}"
+
+        self.create_dictionnary()
+
+    def create_dictionnary(self) -> None:
+        """Create a dictionnary with the data
+        """
+
+        prompt: str = ""
+        name: str = ""
+        parameters: dict[str, str] = {}
+
+        for formatted_prompt in self.finals_prompts:
+
+            # print(formatted_prompt)
+            # print()
+
+            cut1 = formatted_prompt.split(': ')
+
+            prompt = cut1[2].replace('},{"function"', "")
+            name = cut1[-1]
+
+            cut_parameters = formatted_prompt.split("assistant")[1]
+            cut_parameters = cut_parameters.split("\n")
+            cut_parameters = [param.split(": ") for param in cut_parameters]
+            cut_parameters = cut_parameters[1:-1]
+            cut_parameters = [param[-1] for param in cut_parameters]
+
+            # for cut in cut1:
+            #     print(cut)
+            #     print()
+            print()
+            print()
+            print("prompt:", prompt)
+            print("name:", name)
+            print("cut parameters:", cut_parameters)

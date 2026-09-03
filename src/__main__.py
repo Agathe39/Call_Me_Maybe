@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/06 16:13:44 by agathe          #+#    #+#               #
-#  Updated: 2026/09/02 18:11:05 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/03 10:06:42 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -32,12 +32,12 @@ def main() -> None:
     search_parameters = Parameters(llm, functions_names, json_data)
     functions_parameters = search_parameters.parameters_calling()
 
-    for prompt in functions_parameters:
+    # for prompt in functions_parameters:
 
-        print()
-        print(prompt)
-        print()
-        print("------------------------------")
+    #     print()
+    #     print(prompt)
+    #     print()
+    #     print("------------------------------")
 
     # create_json = JsonWritten()
     # create_json.write_output(functions_parameters)
