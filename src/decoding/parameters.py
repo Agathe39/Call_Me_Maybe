@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/03 11:08:59 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/03 18:01:11 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -158,17 +158,22 @@ class Parameters:
             prompt = cut1[2].replace('},{"function"', "")
             name = cut1[-1]
 
-            cut_parameters = formatted_prompt.split("assistant")[1]
-            cut_parameters = cut_parameters.split("\n")
-            cut_parameters = [param.split(": ") for param in cut_parameters]
-            cut_parameters = cut_parameters[1:-1]
-            cut_parameters = [param[-1] for param in cut_parameters]
+            cut1_parameters = formatted_prompt.split("assistant")[1]
+            cut2_parameters = cut1_parameters.split("\n")
+            cut3_parameters = [param.split(": ") for param in cut2_parameters]
+            cut4_parameters = cut3_parameters[1:-1]
+            cut5_parameters = [param[-1] for param in cut4_parameters]
 
-            # for cut in cut1:
-            #     print(cut)
-            #     print()
+            functions = self.json_data.get("functions")
+            for function in functions:
+                parameters = {}
+                if function.get("name") == name:
+                    for i, parameter in enumerate(function.get("parameters")):
+                        parameters[parameter] = cut5_parameters[i]
+
             print()
             print()
             print("prompt:", prompt)
             print("name:", name)
-            print("cut parameters:", cut_parameters)
+            print("cut parameters:", parameters)
+            # print(functions)
