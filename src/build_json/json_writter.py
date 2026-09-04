@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/08/29 12:44:21 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/04 10:13:30 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -120,12 +120,12 @@ class JsonWritten:
 
         return parameters
 
-    def create_json(self) -> None:
+    def create_json(self, functions_parameters: list[dict[str, str]]) -> None:
 
         try:
 
             with open(sys.argv[3], "w") as write:
-                json.dump(self.data, write, indent=4)
+                json.dump(functions_parameters, write, indent=4)
                 print(f"\nYou can open {sys.argv[3]}, that's ready ! :)\n")
 
         except FileNotFoundError:

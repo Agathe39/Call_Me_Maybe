@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/03 18:01:11 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/04 10:15:57 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -27,7 +27,7 @@ class Parameters:
         self.json_data = json_data
         self.prompts: list[tuple[str]] = []
         self.finals_prompts: list[str] = []
-        self.result: dict[str, list[str]] = {}
+        self.result: list[dict[str, str]] = []
 
     def parameters_calling(self) -> list[str]:
         """For each prompt, find the parameters corresponding
@@ -44,7 +44,7 @@ class Parameters:
         self.calling_llm()
         self.organize_data()
 
-        return self.finals_prompts
+        return self.result
 
     def search_info_function(self,
                              prompts_functions: dict[str, list[str]]) -> None:
@@ -150,9 +150,6 @@ class Parameters:
 
         for formatted_prompt in self.finals_prompts:
 
-            # print(formatted_prompt)
-            # print()
-
             cut1 = formatted_prompt.split(': ')
 
             prompt = cut1[2].replace('},{"function"', "")
@@ -169,11 +166,12 @@ class Parameters:
                 parameters = {}
                 if function.get("name") == name:
                     for i, parameter in enumerate(function.get("parameters")):
-                        parameters[parameter] = cut5_parameters[i]
+                        try:
+                            value = cut5_parameters[i]
+                            value = float(value)
+                            parameters[parameter] = value
+                        except ValueError:
+                            value = value.strip('"')
+                            parameters[parameter] = value
 
-            print()
-            print()
-            print("prompt:", prompt)
-            print("name:", name)
-            print("cut parameters:", parameters)
-            # print(functions)
+                    self.result.append({"prompt": prompt, "name": name, "parameters": parameters})
