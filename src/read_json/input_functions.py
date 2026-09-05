@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:47:06 by agathe          #+#    #+#               #
-#  Updated: 2026/08/31 17:24:53 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/04 10:51:33 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -18,9 +18,9 @@ from typing_extensions import Self
 
 class InputFunctions(BaseModel):
     path: str = Field(default="")
-    functions: list[dict[Any, Any]] = Field(default = [])
+    functions: list[dict[Any, Any]] = Field(default=[])
 
-    @model_validator(mode="after") 
+    @model_validator(mode="after")
     def check_data(self) -> Self:
 
         for function in self.functions:

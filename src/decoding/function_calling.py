@@ -6,19 +6,18 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/08/31 18:11:23 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 18:05:24 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from llm_sdk import Small_LLM_Model
 from typing import Any
-import json
-import sys
+from llm_sdk import Small_LLM_Model
 
 
 class FunctionCalling:
 
-    def __init__(self, llm, json_data: dict[str, list[dict[str, Any]]]) -> None:
+    def __init__(self, llm: Small_LLM_Model,
+                 json_data: dict[str, list[dict[str, Any]]]) -> None:
 
         self.llm = llm
         self.json_data = json_data
@@ -29,11 +28,11 @@ class FunctionCalling:
         self.prompts: list[str] = []
         self.first_prompt: str = ""
         self.end_prompt: str = "\nBased on the intended action above, "\
-                       "the correct matching function is: "
+            "the correct matching function is: "
         self.final_prompt: str = ""
-        self.result: dict[str, list[str]] = {}
+        self.result: dict[str, list[str | list[str]]] = {}
 
-    def function_response(self) -> dict[str, list[str]]:
+    def function_response(self) -> dict[str, list[str | list[str]]]:
         """Search for each prompt a compatible function name
 
         Returns:
@@ -75,11 +74,11 @@ class FunctionCalling:
         """Get the name and the description for each function
         """
 
-        functions = self.json_data.get("functions")
+        functions = self.json_data.get("functions", [])
 
         for function in functions:
-            self.functions_names.append(function.get("name"))
-            self.function_descriptions.append(function.get("description"))
+            self.functions_names.append(function.get("name", ""))
+            self.function_descriptions.append(function.get("description", ""))
 
         for name in self.functions_names:
             self.functions_id.append(self.llm.encode(name).tolist()[0])
@@ -92,29 +91,29 @@ class FunctionCalling:
             list: all prompts
         """
 
-        prompts = self.json_data.get("prompts")
+        prompts = self.json_data.get("prompts", [])
 
         for prompt in prompts:
-            self.prompts.append(prompt.get("prompt"))
+            self.prompts.append(prompt.get("prompt", ""))
 
     def construct_prompt(self) -> None:
         """Construct a prompt with name and descrition functions
         """
 
         self.first_prompt = (
-        "You are a function-calling assistant. Below is a list of "
-        "available functions, each with a name and description.\n\n")
+            "You are a function-calling assistant. Below is a list of "
+            "available functions, each with a name and description.\n\n")
 
         for i, name in enumerate(self.functions_names):
             self.first_prompt += f"Function {i}: {name} " \
                                 f"-> {self.function_descriptions[i]} \n"
 
         self.first_prompt += (
-        "\nRead the user prompt carefully and identify the action "
-        "the user actually wants performed. Do not select a function "
-        "just because a word in its name also appears in the prompt "
-        "text — focus on the intended operation, not surface wording.\n\n"
-        "User prompt: ")
+            "\nRead the user prompt carefully and identify the action "
+            "the user actually wants performed. Do not select a function "
+            "just because a word in its name also appears in the prompt "
+            "text — focus on the intended operation, not surface wording.\n\n"
+            "User prompt: ")
 
     def get_valid_function(self, max_len: int) -> None:
         """Compare functions with prompt to keep only
@@ -197,6 +196,6 @@ class FunctionCalling:
 
         prompt = self.final_prompt.split("User prompt: ")[1].split("\n")[0]
         function = self.final_prompt.split(
-        "matching function is: ")[1].split("\n")[0].strip()
+            "matching function is: ")[1].split("\n")[0].strip()
 
         self.result[prompt] = [function]

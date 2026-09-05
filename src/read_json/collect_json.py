@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:41:58 by agathe          #+#    #+#               #
-#  Updated: 2026/08/31 17:44:37 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 17:31:04 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -17,18 +17,36 @@ from xml.dom import ValidationErr
 from src.read_json.input_functions import InputFunctions
 from src.read_json.input_prompts import InputPrompts
 
+
 class CollectJson:
+    def collect_data(self, functions_path: str,
+                     prompts_path: str) -> dict[str, list[dict[str, Any]]]:
+        """Collect functions and prompts in JSON files
 
-    def collect_data(self, functions_path: str, prompts_path: str) -> dict[str, list[dict[str, Any]]]:
+        Args:
+            functions_path (str): path to JSON functions path
+            prompts_path (str): path to JSON prompts path
 
-       functions = self.verif_input_function(functions_path)
-       prompts = self.verif_input_prompts(prompts_path)
+        Returns:
+            dict[str, list[dict[str, Any]]]: dict with functions and prompts
+        """
 
-       return {"functions": functions.functions, "prompts": prompts.prompts}
+        functions = self.verif_input_function(functions_path)
+        prompts = self.verif_input_prompts(prompts_path)
+
+        return {"functions": functions.functions, "prompts": prompts.prompts}
 
     def verif_input_function(self, functions_path: str) -> InputFunctions:
+        """Open and verify the JSON function is valid
+
+        Args:
+            functions_path (str): path to JSON functions file
+
+        Returns:
+            InputFunctions: pydantic class valid of JSON functions file
+        """
         try:
-        
+
             with open(functions_path, "r") as f:
                 func = json.load(f)
                 functions = InputFunctions(path=functions_path, functions=func)
@@ -40,6 +58,7 @@ class CollectJson:
 
         except ValidationErr as e:
             print(e)
+            sys.exit()
         except FileNotFoundError:
             print("\nERROR: function calling file not found\n")
             sys.exit()
@@ -48,9 +67,17 @@ class CollectJson:
             sys.exit()
 
     def verif_input_prompts(self, prompts_path: str) -> InputPrompts:
+        """Open and verify the JSON prompts is valid
+
+        Args:
+            prompts_path (str): path to JSON prompts file
+
+        Returns:
+            InputPrompts: pydantic class valid of JSON prompts file
+        """
 
         try:
-                
+
             with open(prompts_path, "r") as f:
                 prompt = json.load(f)
                 prompts = InputPrompts(path=prompts_path, prompts=prompt)
@@ -62,6 +89,7 @@ class CollectJson:
 
         except ValidationErr as e:
             print(e)
+            sys.exit()
         except FileNotFoundError:
             print("\nERROR: function calling file not found\n")
             sys.exit()

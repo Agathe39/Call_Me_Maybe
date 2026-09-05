@@ -6,30 +6,29 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/04 10:15:57 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 18:06:16 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from multiprocessing.util import info
-import re
 from llm_sdk import Small_LLM_Model
-# import json
 from typing import Any
-# import sys
 
 
 class Parameters:
 
-    def __init__(self, llm: Small_LLM_Model, functions_names: dict[str, list[str]], json_data: dict[str, list[dict[str, Any]]]):
+    def __init__(self,
+                 llm: Small_LLM_Model,
+                 functions_names: dict[str, list[str | list[str]]],
+                 json_data: dict[str, list[dict[str, Any]]]) -> None:
 
         self.llm = llm
         self.functions_names = functions_names
         self.json_data = json_data
-        self.prompts: list[tuple[str]] = []
+        self.prompts: list[tuple[str, str]] = []
         self.finals_prompts: list[str] = []
-        self.result: list[dict[str, str]] = []
+        self.result: list[dict[str, Any]] = []
 
-    def parameters_calling(self) -> list[str]:
+    def parameters_calling(self) -> list[dict[str, str]]:
         """For each prompt, find the parameters corresponding
            to the extracted function
 
@@ -39,15 +38,14 @@ class Parameters:
                                   function and his parameters
         """
 
-        self.search_info_function(self.functions_names)
+        self.search_info_function()
         self.construct_prompts()
         self.calling_llm()
         self.organize_data()
 
         return self.result
 
-    def search_info_function(self,
-                             prompts_functions: dict[str, list[str]]) -> None:
+    def search_info_function(self) -> None:
         """Picks the name and the description of each functions
 
         Args:
@@ -56,7 +54,7 @@ class Parameters:
                                                 for value
         """
 
-        functions = self.json_data.get("functions")
+        functions = self.json_data.get("functions", [])
 
         for func_info in self.functions_names.values():
 
@@ -64,13 +62,13 @@ class Parameters:
 
                 for function in functions:
                     if function.get("name") == name:
-                        
-                        func_info.append(function.get("description"))
-                        parameters = function.get("parameters")
+
+                        func_info.append(function.get("description", ""))
+                        parameters = function.get("parameters", "")
 
                         params: list[str] = []
                         for param, type in parameters.items():
-                            params.append(f"{param} ({type.get('type')})") 
+                            params.append(f"{param} ({type.get('type')})")
 
                         func_info.append(params)
 
@@ -78,7 +76,8 @@ class Parameters:
         """Construct a formatted prompt that the LLM can understand
         """
 
-        system_prompt = "Give the parameters with correct type, in a content given, only that."
+        system_prompt = "Give the parameters with correct type, " \
+            "in a content given, only that."
 
         self.prompts = []
         for prompt, func_info in self.functions_names.items():
@@ -87,12 +86,14 @@ class Parameters:
                 "{"f"\"system\": \"{system_prompt}\"""},"
                 "{"f"\"content\": \"{prompt}\"""},"
                 "{"f"\"function\": \"{func_info[1]}\"""},"
-                "{"f"\"parameters\": {[f.replace(' ', ':') for f in func_info[2]]}""}"
+                "{"f"\"parameters\": "
+                f"{[f.replace(' ', ':') for f in func_info[2]]}""}"
                 "]\nassistant:")
             self.prompts.append((prompt, formatted))
 
     def calling_llm(self) -> None:
-        """Give the formatted prompt to the LLM in order to extract the function's parameters.
+        """Give the formatted prompt to the LLM
+           in order to extract the function's parameters.
         """
 
         for original_prompt, formatted_prompt in self.prompts:
@@ -108,11 +109,12 @@ class Parameters:
 
                 while True:
 
-                    encode_prompt = self.llm.encode(formatted_prompt)[0].tolist()
+                    encode_prompt = self.llm.encode(
+                        formatted_prompt)[0].tolist()
                     results = self.llm.get_logits_from_input_ids(encode_prompt)
 
                     max_token = results.index(max(results))
-                    token = self.llm.decode(max_token)
+                    token = self.llm.decode([max_token])
 
                     if "\n" in token:
                         token = token.replace("\n", "")
@@ -120,14 +122,8 @@ class Parameters:
                         break
 
                     formatted_prompt += token
-            
-            self.finals_prompts.append(formatted_prompt)
 
-        # for prompt in self.finals_prompts:
-        #     print()
-        #     print(prompt)
-        #     print()
-        #     print("---------------------------------------------------------------")
+            self.finals_prompts.append(formatted_prompt)
 
     def organize_data(self) -> None:
         """Organize data in order to send it to the construct json class
@@ -136,7 +132,8 @@ class Parameters:
         for prompt, funct_info in self.functions_names.items():
             for i in range(len(self.finals_prompts)):
                 if prompt in self.finals_prompts[i]:
-                    self.finals_prompts[i] += f"\nfunction_name: {funct_info[0]}"
+                    self.finals_prompts[i] += f"\nfunction_name: "\
+                        f"{funct_info[0]}"
 
         self.create_dictionnary()
 
@@ -146,7 +143,7 @@ class Parameters:
 
         prompt: str = ""
         name: str = ""
-        parameters: dict[str, str] = {}
+        parameters: dict[str, Any] = {}
 
         for formatted_prompt in self.finals_prompts:
 
@@ -161,17 +158,21 @@ class Parameters:
             cut4_parameters = cut3_parameters[1:-1]
             cut5_parameters = [param[-1] for param in cut4_parameters]
 
-            functions = self.json_data.get("functions")
+            functions = self.json_data.get("functions", [])
             for function in functions:
                 parameters = {}
                 if function.get("name") == name:
-                    for i, parameter in enumerate(function.get("parameters")):
+                    for i, parameter in enumerate(function.get(
+                            "parameters", {})):
+                        raw_value = cut5_parameters[i]
                         try:
-                            value = cut5_parameters[i]
-                            value = float(value)
-                            parameters[parameter] = value
+                            num_value = float(raw_value)
+                            parameters[parameter] = num_value
                         except ValueError:
-                            value = value.strip('"')
+                            value = raw_value.strip('"')
                             parameters[parameter] = value
 
-                    self.result.append({"prompt": prompt, "name": name, "parameters": parameters})
+                    self.result.append({"prompt": prompt,
+                                        "name": name,
+                                        "parameters": parameters})
+                    # break
