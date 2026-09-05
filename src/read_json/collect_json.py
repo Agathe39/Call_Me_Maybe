@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:41:58 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 18:43:18 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:22:43 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,6 +19,12 @@ from src.read_json.input_prompts import InputPrompts
 
 
 class CollectJson(BaseModel):
+    """Loads and validates functions and prompts from JSON files.
+
+    Uses the corresponding Pydantic models to verify that the content
+    of the input JSON files has the expected structure.
+    """
+
     def collect_data(self, functions_path: str,
                      prompts_path: str) -> dict[str, list[dict[str, Any]]]:
         """Collect functions and prompts in JSON files

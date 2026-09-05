@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:15:22 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:21:12 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -16,21 +16,12 @@ from typing import Any
 
 
 class Parameters(BaseModel):
-
-    # def __init__(self,
-    #              llm: Small_LLM_Model,
-    #              functions_names: dict[str, list[str | list[str]]],
-    #              json_data: dict[str, list[dict[str, Any]]]) -> None:
-
-    #     self.llm = llm
-    #     self.functions_names = functions_names
-    #     self.json_data = json_data
-    #     self.prompts: list[tuple[str, str]] = []
-    #     self.finals_prompts: list[str] = []
-    #     self.result: list[dict[str, Any]] = []
+    """Extracts the parameters required by the selected functions.
+    Uses the LLM to identify and extract parameter values from user prompts,
+    then organizes the extracted data into a structured dictionary.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-
     llm: Small_LLM_Model
     functions_names: dict[str, list[str | list[str]]]
     json_data: dict[str, list[dict[str, Any]]]

@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 18:45:45 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:22:59 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -16,6 +16,11 @@ import json
 
 
 class JsonWritten(BaseModel):
+    """Writes the function-calling results to a JSON output file.
+
+    Serializes the extracted function names and parameters into a
+    structured JSON file.
+    """
 
     def create_json(self, functions_parameters: list[dict[str, str]]) -> None:
         """Create JSON output

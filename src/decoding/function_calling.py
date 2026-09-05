@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:10:30 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:20:25 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -16,22 +16,12 @@ from llm_sdk import Small_LLM_Model
 
 
 class FunctionCalling(BaseModel):
+    """Matches user prompts with the most appropriate function name.
 
-    # def __init__(self, llm: Small_LLM_Model,
-    #              json_data: dict[str, list[dict[str, Any]]]) -> None:
-
-        # self.llm = llm
-        # self.json_data = json_data
-        # self.functions_names: list[str] = []
-        # self.functions_id: list[list[int]] = []
-        # self.function_descriptions: list[str] = []
-        # self.all_functions_id: list[int] = []
-        # self.prompts: list[str] = []
-        # self.first_prompt: str = ""
-        # self.end_prompt: str = "\nBased on the intended action above, "\
-        #     "the correct matching function is: "
-        # self.final_prompt: str = ""
-        # self.result: dict[str, list[str | list[str]]] = {}
+    Uses the LLM to compare the tokens generated for each available
+    function with the user prompt and selects the function corresponding
+    to the intended action.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     llm: Small_LLM_Model
