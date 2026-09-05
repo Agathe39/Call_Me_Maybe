@@ -22,7 +22,7 @@ install:
 	uv add pydantic flake8 mypy pytest numpy torch transformers huggingface-hub
 
 debug:
-	uv run python -m pdb src
+	python -m pdb -m src
 
 lint:
 	uv run python -m flake8 .

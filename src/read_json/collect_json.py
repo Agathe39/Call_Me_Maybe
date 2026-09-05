@@ -6,19 +6,19 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:41:58 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 17:31:04 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 18:43:18 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import sys
 import json
 from typing import Any
-from xml.dom import ValidationErr
+from pydantic import ValidationError, BaseModel
 from src.read_json.input_functions import InputFunctions
 from src.read_json.input_prompts import InputPrompts
 
 
-class CollectJson:
+class CollectJson(BaseModel):
     def collect_data(self, functions_path: str,
                      prompts_path: str) -> dict[str, list[dict[str, Any]]]:
         """Collect functions and prompts in JSON files
@@ -51,12 +51,12 @@ class CollectJson:
                 func = json.load(f)
                 functions = InputFunctions(path=functions_path, functions=func)
 
-                print("In functions, everythings ok")
+                print("Functions calling file is verified, everythings ok")
                 print()
 
                 return functions
 
-        except ValidationErr as e:
+        except ValidationError as e:
             print(e)
             sys.exit()
         except FileNotFoundError:
@@ -65,6 +65,8 @@ class CollectJson:
         except PermissionError:
             print("\nERROR: function calling file denied permission\n")
             sys.exit()
+        except json.JSONDecodeError:
+            print("\nERROR: Json syntax of function calling file is false")
 
     def verif_input_prompts(self, prompts_path: str) -> InputPrompts:
         """Open and verify the JSON prompts is valid
@@ -82,17 +84,19 @@ class CollectJson:
                 prompt = json.load(f)
                 prompts = InputPrompts(path=prompts_path, prompts=prompt)
 
-                print("In prompts, everythings ok")
+                print("Prompts calling file is verified, everythings ok")
                 print()
 
                 return prompts
 
-        except ValidationErr as e:
+        except ValidationError as e:
             print(e)
             sys.exit()
         except FileNotFoundError:
-            print("\nERROR: function calling file not found\n")
+            print("\nERROR: prompt calling file not found\n")
             sys.exit()
         except PermissionError:
-            print("\nERROR: function calling file denied permission\n")
+            print("\nERROR: prompt calling file denied permission\n")
             sys.exit()
+        except json.JSONDecodeError:
+            print("\nERROR: Json syntax of prompt calling file is false")

@@ -6,15 +6,16 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 17:25:52 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 18:45:45 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
+from pydantic import BaseModel
 import sys
 import json
 
 
-class JsonWritten:
+class JsonWritten(BaseModel):
 
     def create_json(self, functions_parameters: list[dict[str, str]]) -> None:
         """Create JSON output

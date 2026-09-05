@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/06 16:13:44 by agathe          #+#    #+#               #
-#  Updated: 2026/09/04 10:45:17 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:15:54 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -27,10 +27,10 @@ def main() -> None:
 
         llm = Small_LLM_Model()
 
-        search_name = FunctionCalling(llm, json_data)
+        search_name = FunctionCalling(llm=llm, json_data=json_data)
         functions_names = search_name.function_response()
 
-        search_parameters = Parameters(llm, functions_names, json_data)
+        search_parameters = Parameters(llm=llm, functions_names=functions_names, json_data=json_data)
         functions_parameters = search_parameters.parameters_calling()
 
         create_json = JsonWritten()

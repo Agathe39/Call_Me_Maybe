@@ -6,27 +6,38 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 18:06:16 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:15:22 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from llm_sdk import Small_LLM_Model
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 from typing import Any
 
 
-class Parameters:
+class Parameters(BaseModel):
 
-    def __init__(self,
-                 llm: Small_LLM_Model,
-                 functions_names: dict[str, list[str | list[str]]],
-                 json_data: dict[str, list[dict[str, Any]]]) -> None:
+    # def __init__(self,
+    #              llm: Small_LLM_Model,
+    #              functions_names: dict[str, list[str | list[str]]],
+    #              json_data: dict[str, list[dict[str, Any]]]) -> None:
 
-        self.llm = llm
-        self.functions_names = functions_names
-        self.json_data = json_data
-        self.prompts: list[tuple[str, str]] = []
-        self.finals_prompts: list[str] = []
-        self.result: list[dict[str, Any]] = []
+    #     self.llm = llm
+    #     self.functions_names = functions_names
+    #     self.json_data = json_data
+    #     self.prompts: list[tuple[str, str]] = []
+    #     self.finals_prompts: list[str] = []
+    #     self.result: list[dict[str, Any]] = []
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    llm: Small_LLM_Model
+    functions_names: dict[str, list[str | list[str]]]
+    json_data: dict[str, list[dict[str, Any]]]
+
+    _prompts: list[tuple[str, str]] = PrivateAttr(default_factory=list)
+    _finals_prompts: list[str] = PrivateAttr(default_factory=list)
+    _result: list[dict[str, Any]] = PrivateAttr(default_factory=list)
 
     def parameters_calling(self) -> list[dict[str, str]]:
         """For each prompt, find the parameters corresponding
@@ -43,7 +54,7 @@ class Parameters:
         self.calling_llm()
         self.organize_data()
 
-        return self.result
+        return self._result
 
     def search_info_function(self) -> None:
         """Picks the name and the description of each functions
@@ -79,7 +90,7 @@ class Parameters:
         system_prompt = "Give the parameters with correct type, " \
             "in a content given, only that."
 
-        self.prompts = []
+        self._prompts = []
         for prompt, func_info in self.functions_names.items():
             formatted = (
                 "["
@@ -89,14 +100,14 @@ class Parameters:
                 "{"f"\"parameters\": "
                 f"{[f.replace(' ', ':') for f in func_info[2]]}""}"
                 "]\nassistant:")
-            self.prompts.append((prompt, formatted))
+            self._prompts.append((prompt, formatted))
 
     def calling_llm(self) -> None:
         """Give the formatted prompt to the LLM
            in order to extract the function's parameters.
         """
 
-        for original_prompt, formatted_prompt in self.prompts:
+        for original_prompt, formatted_prompt in self._prompts:
 
             parameters = self.functions_names[original_prompt][2]
 
@@ -123,16 +134,16 @@ class Parameters:
 
                     formatted_prompt += token
 
-            self.finals_prompts.append(formatted_prompt)
+            self._finals_prompts.append(formatted_prompt)
 
     def organize_data(self) -> None:
         """Organize data in order to send it to the construct json class
         """
 
         for prompt, funct_info in self.functions_names.items():
-            for i in range(len(self.finals_prompts)):
-                if prompt in self.finals_prompts[i]:
-                    self.finals_prompts[i] += f"\nfunction_name: "\
+            for i in range(len(self._finals_prompts)):
+                if prompt in self._finals_prompts[i]:
+                    self._finals_prompts[i] += f"\nfunction_name: "\
                         f"{funct_info[0]}"
 
         self.create_dictionnary()
@@ -145,7 +156,7 @@ class Parameters:
         name: str = ""
         parameters: dict[str, Any] = {}
 
-        for formatted_prompt in self.finals_prompts:
+        for formatted_prompt in self._finals_prompts:
 
             cut1 = formatted_prompt.split(': ')
 
@@ -172,7 +183,6 @@ class Parameters:
                             value = raw_value.strip('"')
                             parameters[parameter] = value
 
-                    self.result.append({"prompt": prompt,
+                    self._result.append({"prompt": prompt,
                                         "name": name,
                                         "parameters": parameters})
-                    # break
