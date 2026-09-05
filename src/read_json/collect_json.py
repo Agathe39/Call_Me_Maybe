@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:41:58 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:22:43 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:40:18 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -57,7 +57,7 @@ class CollectJson(BaseModel):
                 func = json.load(f)
                 functions = InputFunctions(path=functions_path, functions=func)
 
-                print("Functions calling file is verified, everythings ok")
+                print("\nFunctions calling file is verified, everythings ok")
                 print()
 
                 return functions

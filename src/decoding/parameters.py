@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:21:12 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:43:23 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -40,11 +40,13 @@ class Parameters(BaseModel):
                                   function and his parameters
         """
 
+        print("\nSearching parameters ...")
         self.search_info_function()
         self.construct_prompts()
         self.calling_llm()
         self.organize_data()
 
+        print("All parameters found !")
         return self._result
 
     def search_info_function(self) -> None:

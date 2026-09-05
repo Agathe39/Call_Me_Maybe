@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/06 16:13:44 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:15:54 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:36:11 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -25,6 +25,7 @@ def main() -> None:
         input_functions = CollectJson()
         json_data = input_functions.collect_data(sys.argv[1], sys.argv[2])
 
+        print("Load the LLM:")
         llm = Small_LLM_Model()
 
         search_name = FunctionCalling(llm=llm, json_data=json_data)

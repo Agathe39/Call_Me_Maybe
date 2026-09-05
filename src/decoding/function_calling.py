@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:20:25 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/05 19:43:10 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -58,6 +58,7 @@ class FunctionCalling(BaseModel):
             dict[str, str]: key = prompt and value = function's name
         """
 
+        print("\nSearching function names ...")
         self.get_functions_info()
         self.get_prompts()
         self.construct_prompt()
@@ -87,6 +88,7 @@ class FunctionCalling(BaseModel):
 
             self.recup_result()
 
+        print("All function names finding !")
         return self.result
 
     def get_functions_info(self) -> None:
