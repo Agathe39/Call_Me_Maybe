@@ -6,13 +6,14 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/26 13:39:42 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:39:18 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/06 11:59:48 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from pydantic import BaseModel
 import sys
 import json
+import os
 
 
 class JsonWritten(BaseModel):
@@ -22,7 +23,9 @@ class JsonWritten(BaseModel):
     structured JSON file.
     """
 
-    def create_json(self, functions_parameters: list[dict[str, str]]) -> None:
+    def create_json(self,
+                    functions_parameters: list[dict[str, str]],
+                    output_path: str) -> None:
         """Create JSON output
 
         Args:
@@ -30,11 +33,15 @@ class JsonWritten(BaseModel):
             it function's name and parameters
         """
 
+        file = os.path.dirname(output_path)
+        if file:
+            os.makedirs(file, exist_ok=True)
+
         try:
 
-            with open(sys.argv[3], "w") as write:
+            with open(output_path, "w") as write:
                 json.dump(functions_parameters, write, indent=4)
-                print(f"\nYou can open {sys.argv[3]}, that's ready ! :)\n")
+                print(f"\nYou can open {output_path}, that's ready ! :)\n")
 
         except FileNotFoundError:
             print("ERROR: function calling results file not found")

@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:41:58 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:40:18 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/06 12:01:01 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -73,6 +73,7 @@ class CollectJson(BaseModel):
             sys.exit()
         except json.JSONDecodeError:
             print("\nERROR: Json syntax of function calling file is false")
+            sys.exit()
 
     def verif_input_prompts(self, prompts_path: str) -> InputPrompts:
         """Open and verify the JSON prompts is valid
@@ -106,3 +107,4 @@ class CollectJson(BaseModel):
             sys.exit()
         except json.JSONDecodeError:
             print("\nERROR: Json syntax of prompt calling file is false")
+            sys.exit()

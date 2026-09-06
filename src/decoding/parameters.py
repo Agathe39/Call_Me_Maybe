@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/17 14:06:24 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:43:23 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/06 12:00:17 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -177,5 +177,5 @@ class Parameters(BaseModel):
                             parameters[parameter] = value
 
                     self._result.append({"prompt": prompt,
-                                        "name": name,
-                                        "parameters": parameters})
+                                         "name": name,
+                                         "parameters": parameters})

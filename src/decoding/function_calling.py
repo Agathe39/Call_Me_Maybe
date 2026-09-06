@@ -6,7 +6,7 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/14 13:20:52 by agathe          #+#    #+#               #
-#  Updated: 2026/09/05 19:43:10 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/06 12:01:29 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -43,14 +43,14 @@ class FunctionCalling(BaseModel):
     _max_tokens: list[int | float] = PrivateAttr(default_factory=list)
     _ids_token: list[float] = PrivateAttr(default_factory=list)
     _need_break: bool = PrivateAttr(default=False)
-    _encode_prompt: list[int] = PrivateAttr(default_factory=list)
+    _encode_prompt: list[Any] = PrivateAttr(default_factory=list)
     _ids_prompt: list[float] = PrivateAttr(default_factory=list)
     _functions_id_valid: list[list[int]] = PrivateAttr(
         default_factory=list
     )
     _max_score: float = PrivateAttr(default=0)
     _max_token: int | float = PrivateAttr(default=0)
-    
+
     def function_response(self) -> dict[str, list[str | list[str]]]:
         """Search for each prompt a compatible function name
 
@@ -162,7 +162,7 @@ class FunctionCalling(BaseModel):
 
             self._max_score = max([score[0] for score in ids_token])
             self._max_token = next(tok[1] for tok in ids_token
-                                  if tok[0] == self._max_score)
+                                   if tok[0] == self._max_score)
             self._max_tokens.append(self._max_token)
             self._encode_prompt.append(self._max_token)
 

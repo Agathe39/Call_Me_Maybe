@@ -15,7 +15,7 @@ MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 all: install run
 
 run:
-	uv run python -m src $(FUNC_DEF) $(INPUT_FILE) $(OUTPUT_FILE)
+	uv run python -m src --functions_definition $(FUNC_DEF) --input $(INPUT_FILE) --output $(OUTPUT_FILE)
 
 install: 
 	uv sync
@@ -33,12 +33,13 @@ lint-strict:
 	uv run python -m mypy . --strict
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} \;
+	find . -type d -name "__pycache__" -prune -exec rm -rf {} \;
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
 	rm -rf $(OUTPUT_FILE)
+	rm -rf "data/output"
 
-fclean:
+fclean: clean
 	rm -rf .venv
 
 help:
