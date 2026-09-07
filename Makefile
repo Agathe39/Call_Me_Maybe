@@ -54,6 +54,6 @@ help:
 	echo "make lint: run flake8 and mypy"
 	echo "make lint-strict: run flake8 and mypy more strictly"
 	echo "make clean: delete the cache"
-	echo "make fclean: delete the virtual environnement"
+	echo "make fclean: delete the .cache, .llm and the virtual environnement"
 	echo "\n"
 
