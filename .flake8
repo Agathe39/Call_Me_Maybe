@@ -1,0 +1,2 @@
+[flake8]
+exclude = .mypy_cache, .venv, /FOR_ME, .pytest_cache, llm_sdk
