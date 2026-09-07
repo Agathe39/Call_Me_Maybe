@@ -88,7 +88,7 @@ class FunctionCalling(BaseModel):
 
             self.recup_result()
 
-        print("All function names finding !")
+        print("All function names found !")
         return self.result
 
     def get_functions_info(self) -> None:

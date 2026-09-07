@@ -7,7 +7,9 @@ MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 			 --ignore-missing-imports \
 			 --disallow-untyped-defs \
 			 --check-untyped-defs
-			 
+
+include .env
+
 
 .PHONY: all run install debug lint lint-strict clean fclean help
 
@@ -17,7 +19,7 @@ all: install run
 run:
 	uv run python -m src --functions_definition $(FUNC_DEF) --input $(INPUT_FILE) --output $(OUTPUT_FILE)
 
-install: 
+install:
 	uv sync
 	uv add pydantic flake8 mypy pytest numpy torch transformers huggingface-hub
 
@@ -40,6 +42,8 @@ clean:
 	rm -rf "data/output"
 
 fclean: clean
+	rm -rf .cache
+	rm -rf .llm
 	rm -rf .venv
 
 help:
