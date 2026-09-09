@@ -6,11 +6,10 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 14:12:28 by agathe          #+#    #+#               #
-#  Updated: 2026/09/04 10:51:52 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/09 18:14:54 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from xml.dom import ValidationErr
 from pydantic import BaseModel, Field, model_validator
 from typing import Any
 from typing_extensions import Self
@@ -24,10 +23,15 @@ class InputPrompts(BaseModel):
     def check_data(self) -> Self:
         for prompt in self.prompts:
             for key, value in prompt.items():
+
+                if isinstance(key, str) is False:
+                    raise ValueError(f"ERROR in {self.path}: " +
+                                     "expected string for all keys")
+
                 if key != "prompt":
-                    raise ValidationErr(f"\nERROR in {self.path}: expected \
-                                        key 'prompt', got '{key}'\n")
+                    raise ValueError(f"\nERROR in {self.path}: expected \
+                                        key 'prompt', got '{key}'")
                 if isinstance(value, str) is False:
-                    raise ValidationErr(f"\nERROR in {self.path}: expected \
+                    raise ValueError(f"\nERROR in {self.path}: expected \
                                     type value str")
         return self

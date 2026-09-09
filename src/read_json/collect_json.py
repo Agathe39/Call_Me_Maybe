@@ -6,14 +6,15 @@
 #  By: agathe <agathe@student.42.fr>             +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/08/31 13:41:58 by agathe          #+#    #+#               #
-#  Updated: 2026/09/07 10:54:51 by agathe          ###   ########.fr        #
+#  Updated: 2026/09/09 18:19:37 by agathe          ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import sys
 import json
+from json import JSONDecodeError
 from typing import Any
-from pydantic import ValidationError, BaseModel
+from pydantic import BaseModel, ValidationError
 from src.read_json.input_functions import InputFunctions
 from src.read_json.input_prompts import InputPrompts
 
@@ -62,20 +63,21 @@ class CollectJson(BaseModel):
 
                 return functions
 
-        except ValidationError as e:
-            print(e)
-            sys.exit()
         except FileNotFoundError:
             print("\nERROR: function calling file not found\n")
             sys.exit()
         except PermissionError:
             print("\nERROR: function calling file denied permission\n")
             sys.exit()
-        except json.JSONDecodeError:
-            print("\nERROR: Json syntax of function calling file is false")
+        except JSONDecodeError:
+            print("\nERROR: Json syntax of function calling file is false\n")
             sys.exit()
         except UnicodeDecodeError:
             print("\nERROR: function calling file is not a text document")
+            sys.exit()
+        except ValidationError as exc:
+            print("\n", repr(exc.errors()[0]['msg']))
+            print()
             sys.exit()
 
     def verif_input_prompts(self, prompts_path: str) -> InputPrompts:
@@ -99,9 +101,6 @@ class CollectJson(BaseModel):
 
                 return prompts
 
-        except ValidationError as e:
-            print(e)
-            sys.exit()
         except FileNotFoundError:
             print("\nERROR: prompt calling file not found\n")
             sys.exit()
@@ -109,8 +108,12 @@ class CollectJson(BaseModel):
             print("\nERROR: prompt calling file denied permission\n")
             sys.exit()
         except json.JSONDecodeError:
-            print("\nERROR: Json syntax of prompt calling file is false")
+            print("\nERROR: Json syntax of prompt calling file is false\n")
             sys.exit()
         except UnicodeDecodeError:
-            print("\nERROR: prompt calling file is not a text document")
+            print("\nERROR: prompt calling file is not a text document\n")
+            sys.exit()
+        except ValidationError as exc:
+            print(repr(exc.errors()[0]['msg']))
+            print()
             sys.exit()
