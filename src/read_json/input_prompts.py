@@ -29,9 +29,9 @@ class InputPrompts(BaseModel):
                                      "expected string for all keys")
 
                 if key != "prompt":
-                    raise ValueError(f"\nERROR in {self.path}: expected \
-                                        key 'prompt', got '{key}'")
+                    raise ValueError(f"ERROR in {self.path}: expected " +
+                                     f"key 'prompt', got '{key}'")
                 if isinstance(value, str) is False:
-                    raise ValueError(f"\nERROR in {self.path}: expected \
-                                    type value str")
+                    raise ValueError(f"ERROR in {self.path}: expected " +
+                                     "type value str")
         return self
