@@ -8,6 +8,9 @@ MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 			 --disallow-untyped-defs \
 			 --check-untyped-defs
 
+include .env
+
+
 .PHONY: all run install debug lint lint-strict clean fclean help
 
 
